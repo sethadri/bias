@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practical BIAS Framework</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2330;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --gold: #d4a017;
+    --gold-light: #f0c030;
+    --bull: #2ea043;
+    --bull-light: #3fb950;
+    --bull-bg: #0d2818;
+    --bull-border: #2ea04366;
+    --bear: #da3633;
+    --bear-light: #f85149;
+    --bear-bg: #2d0f0f;
+    --bear-border: #da363366;
+    --neutral: #58a6ff;
+    --neutral-bg: #0d2040;
+    --neutral-border: #58a6ff44;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #1a1400 0%, #0d1117 60%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px 16px;
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+  }
+  .header-icon { font-size: 28px; }
+  .header-title { font-size: 22px; font-weight: 700; color: var(--gold-light); letter-spacing: 0.5px; }
+  .header-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ── ASSET BUTTONS ── */
+  .asset-bar {
+    display: flex;
+    gap: 10px;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-wrap: wrap;
+  }
+  .asset-btn {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.3px;
+  }
+  .asset-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold-light);
+  }
+  .asset-btn.active {
+    background: linear-gradient(135deg, #2a1f00, #1a1500);
+    border-color: var(--gold);
+    color: var(--gold-light);
+    box-shadow: 0 0 16px #d4a01730;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    min-height: calc(100vh - 130px);
+  }
+  .panel-left {
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    padding: 24px;
+    overflow-y: auto;
+  }
+  .panel-right {
+    padding: 24px;
+    overflow-y: auto;
+  }
+
+  /* ── WELCOME STATE ── */
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: var(--muted);
+    gap: 12px;
+    padding: 60px 32px;
+  }
+  .welcome-icon { font-size: 48px; opacity: 0.4; }
+  .welcome h2 { font-size: 18px; color: var(--text); opacity: 0.5; }
+  .welcome p { font-size: 13px; max-width: 320px; }
+
+  /* ── SECTION HEADINGS ── */
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    margin-top: 24px;
+  }
+  .section-title:first-child { margin-top: 0; }
+
+  /* ── PARAMETER GROUPS ── */
+  .param-group {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .param-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .param-label .badge {
+    background: #21262d;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .btn-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .choice-btn {
+    flex: 1;
+    min-width: 70px;
+    background: #21262d;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .choice-btn:hover { border-color: #58a6ff44; color: var(--text); }
+  .choice-btn.sel-bull {
+    background: var(--bull-bg);
+    border-color: var(--bull);
+    color: var(--bull-light);
+  }
+  .choice-btn.sel-bear {
+    background: var(--bear-bg);
+    border-color: var(--bear);
+    color: var(--bear-light);
+  }
+  .choice-btn.sel-neutral {
+    background: var(--neutral-bg);
+    border-color: var(--neutral);
+    color: var(--neutral);
+  }
+  .choice-btn.sel-gold {
+    background: #2a1f00;
+    border-color: var(--gold);
+    color: var(--gold-light);
+  }
+
+  /* ── CALC BUTTON ── */
+  .calc-btn {
+    width: 100%;
+    margin-top: 18px;
+    padding: 13px;
+    background: linear-gradient(135deg, #2a1f00, #1a1500);
+    border: 1.5px solid var(--gold);
+    border-radius: var(--radius);
+    color: var(--gold-light);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.18s;
+  }
+  .calc-btn:hover {
+    background: linear-gradient(135deg, #3a2b00, #2a2000);
+    box-shadow: 0 0 18px #d4a01730;
+  }
+  .reset-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .reset-btn:hover { border-color: var(--bear); color: var(--bear-light); }
+
+  /* ── RESULTS PANEL ── */
+  .result-card {
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    border: 1.5px solid;
+  }
+  .result-card.bull {
+    background: var(--bull-bg);
+    border-color: var(--bull);
+  }
+  .result-card.bear {
+    background: var(--bear-bg);
+    border-color: var(--bear);
+  }
+  .result-card.neutral {
+    background: var(--neutral-bg);
+    border-color: var(--neutral);
+  }
+  .result-card.no-bias {
+    background: #1a1a1a;
+    border-color: var(--border);
+  }
+  .result-direction {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .result-card.bull .result-direction { color: var(--bull-light); }
+  .result-card.bear .result-direction { color: var(--bear-light); }
+  .result-card.neutral .result-direction { color: var(--neutral); }
+  .result-card.no-bias .result-direction { color: var(--muted); }
+
+  .result-grade {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .result-prob {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .result-card.bull .result-prob { color: var(--bull-light); }
+  .result-card.bear .result-prob { color: var(--bear-light); }
+  .result-card.neutral .result-prob { color: var(--neutral); }
+  .result-card.no-bias .result-prob { color: var(--muted); }
+
+  .result-prob-label { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+
+  /* ── PROB BAR ── */
+  .prob-bar-wrap { margin-bottom: 20px; }
+  .prob-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .prob-bar-track {
+    height: 8px;
+    background: #21262d;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .prob-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+  .bull-fill { background: linear-gradient(90deg, #2ea043, #3fb950); }
+  .bear-fill { background: linear-gradient(90deg, #da3633, #f85149); }
+
+  /* ── FINDINGS ── */
+  .findings-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .finding-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .finding-item .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .bull .dot, .finding-item.bull-dot .dot { background: var(--bull-light); }
+  .bear .dot, .finding-item.bear-dot .dot { background: var(--bear-light); }
+  .neutral .dot { background: var(--neutral); }
+
+  /* ── EXTRA INSIGHT CARDS ── */
+  .insight-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .insight-card h4 {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .insight-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .insight-row:last-child { border-bottom: none; }
+  .insight-row .label { color: var(--muted); }
+  .insight-row .value { font-weight: 600; }
+  .value.green { color: var(--bull-light); }
+  .value.red { color: var(--bear-light); }
+  .value.blue { color: var(--neutral); }
+  .value.gold { color: var(--gold-light); }
+
+  /* ── CHECKLIST ── */
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check-icon { font-size: 14px; }
+  .check-text { flex: 1; }
+  .check-badge {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .badge-req { background: #1a2a1a; color: var(--bull-light); border: 1px solid var(--bull-border); }
+  .badge-opt { background: #1a1a2a; color: var(--neutral); border: 1px solid var(--neutral-border); }
+  .badge-miss { background: var(--bear-bg); color: var(--bear-light); border: 1px solid var(--bear-border); }
+  .badge-bonus { background: #2a2000; color: var(--gold-light); border: 1px solid #d4a01744; }
+
+  /* ── RULE BOX ── */
+  .rule-box {
+    background: #0d1a0d;
+    border: 1px solid #2ea04344;
+    border-left: 3px solid var(--bull);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+  .rule-box.bear-rule {
+    background: #1a0d0d;
+    border-color: #da363344;
+    border-left-color: var(--bear);
+  }
+  .rule-box.gold-rule {
+    background: #1a1500;
+    border-color: #d4a01744;
+    border-left-color: var(--gold);
+  }
+
+  /* ── PLACEHOLDER ── */
+  .placeholder-text {
+    text-align: center;
+    color: var(--muted);
+    padding: 60px 20px;
+    font-size: 13px;
+  }
+  .placeholder-text .ph-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .main { grid-template-columns: 1fr; }
+    .panel-left { border-right: none; border-bottom: 1px solid var(--border); }
+    .header { padding: 16px 20px 12px; }
+    .asset-bar { padding: 14px 20px; }
+    .panel-left, .panel-right { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">📊</div>
+  <div>
+    <div class="header-title">PRACTICAL BIAS FRAMEWORK</div>
+    <div class="header-sub">Institutional Daily Bias — Gold · S&P 500 · US30 · GER40</div>
+  </div>
+</div>
+
+<div class="asset-bar" id="assetBar">
+  <button class="asset-btn" onclick="selectAsset('GOLD')">🥇 GOLD</button>
+  <button class="asset-btn" onclick="selectAsset('SP500')">🇺🇸 S&P 500</button>
+  <button class="asset-btn" onclick="selectAsset('US30')">📈 US30</button>
+  <button class="asset-btn" onclick="selectAsset('GER40')">🇩🇪 GER40</button>
+</div>
+
+<div class="main">
+  <div class="panel-left" id="panelLeft">
+    <div class="welcome">
+      <div class="welcome-icon">🎯</div>
+      <h2>Select an Asset</h2>
+      <p>Choose one of the four assets above to load its bias parameters.</p>
+    </div>
+  </div>
+  <div class="panel-right" id="panelRight">
+    <div class="welcome">
+      <div class="welcome-icon">📋</div>
+      <h2>Results will appear here</h2>
+      <p>Fill in the parameters on the left and press <strong>Calculate Bias</strong> to see your A+ bias result.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentAsset = null;
+let params = {};
+
+// ─── ASSET SELECT ─────────────────────────────────────────────────────────────
+function selectAsset(asset) {
+  currentAsset = asset;
+  params = {};
+  document.querySelectorAll('.asset-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', ['GOLD','SP500','US30','GER40'][i] === asset);
+  });
+  renderParams();
+  renderRightPlaceholder();
+}
+
+function renderRightPlaceholder() {
+  document.getElementById('panelRight').innerHTML = `
+    <div class="placeholder-text">
+      <div class="ph-icon">📋</div>
+      <p>Set the parameters on the left and press <strong>Calculate Bias</strong>.</p>
+    </div>`;
+}
+
+// ─── PARAM RENDER ──────────────────────────────────────────────────────────────
+function renderParams() {
+  const el = document.getElementById('panelLeft');
+  if (currentAsset === 'GOLD') el.innerHTML = goldParams();
+  else if (currentAsset === 'SP500') el.innerHTML = sp500Params();
+  else if (currentAsset === 'US30') el.innerHTML = us30Params();
+  else if (currentAsset === 'GER40') el.innerHTML = ger40Params();
+}
+
+function paramGroup(id, label, badge, options) {
+  const btns = options.map(o =>
+    `<button class="choice-btn" id="btn_${id}_${o.val}"
+      onclick="setParam('${id}','${o.val}','${o.cls}')">${o.label}</button>`
+  ).join('');
+  return `
+    <div class="param-group">
+      <div class="param-label">${label}${badge ? `<span class="badge">${badge}</span>` : ''}</div>
+      <div class="btn-row">${btns}</div>
+    </div>`;
+}
+
+const B = (v, l) => ({ val: v, label: l, cls: v === 'bull' || v === 'above' || v === 'yes' || v === 'bullish' ? 'bull' : v === 'bear' || v === 'below' || v === 'no' || v === 'bearish' ? 'bear' : 'neutral' });
+
+// GOLD
+function goldParams() {
+  return `
+    <div class="section-title">Gold — Session Parameters</div>
+    ${paramGroup('asia','Asia Session',null,[
+      {val:'bull',label:'🟢 Bull',cls:'bull'},{val:'bear',label:'🔴 Bear',cls:'bear'}
+    ])}
+    ${paramGroup('london','London Session',null,[
+      {val:'bull',label:'🟢 Bull',cls:'bull'},{val:'bear',label:'🔴 Bear',cls:'bear'}
+    ])}
+    ${paramGroup('pos10','Position @ 10:00 GMT',null,[
+      {val:'above',label:'Above Asia High',cls:'bull'},
+      {val:'inside',label:'Inside Range',cls:'neutral'},
+      {val:'below',label:'Below Asia Low',cls:'bear'}
+    ])}
+    <button class="calc-btn" onclick="calculate()">⚡ Calculate Bias</button>
+    <button class="reset-btn" onclick="resetParams()">↺ Reset</button>
+  `;
+}
+
+// S&P 500
+function sp500Params() {
+  return `
+    <div class="section-title">S&P 500 — Parameters (evaluate at 15:00)</div>
+    ${paramGroup('daily_open','Price vs Daily Open',null,[
+      {val:'above',label:'Above',cls:'bull'},{val:'below',label:'Below',cls:'bear'}
+    ])}
+    ${paramGroup('pts_above','Points vs Daily Open',null,[
+      {val:'20plus',label:'20+ pts',cls:'bull'},{val:'less20',label:'< 20 pts',cls:'neutral'}
+    ])}
+    ${paramGroup('us_first','US First Hour Direction','14:30–15:00',[
+      {val:'bull',label:'🟢 Bullish',cls:'bull'},{val:'bear',label:'🔴 Bearish',cls:'bear'}
+    ])}
+    ${paramGroup('vs_asia','Price vs Asia High/Low',null,[
+      {val:'above_asia',label:'Above Asia High',cls:'bull'},
+      {val:'inside_asia',label:'Inside Range',cls:'neutral'},
+      {val:'below_asia',label:'Below Asia Low',cls:'bear'}
+    ])}
+    ${paramGroup('vs_preus','Price vs Pre-US Level',null,[
+      {val:'above_preus',label:'Above Pre-US High',cls:'bull'},
+      {val:'at_preus',label:'At / Mixed',cls:'neutral'},
+      {val:'below_preus',label:'Below Pre-US Low',cls:'bear'}
+    ])}
+    ${paramGroup('europe','Europe Session Direction','pre-14:30',[
+      {val:'bull',label:'🟢 Bullish',cls:'bull'},{val:'bear',label:'🔴 Bearish',cls:'bear'},{val:'mixed',label:'Mixed',cls:'neutral'}
+    ])}
+    <button class="calc-btn" onclick="calculate()">⚡ Calculate Bias</button>
+    <button class="reset-btn" onclick="resetParams()">↺ Reset</button>
+  `;
+}
+
+// US30
+function us30Params() {
+  return `
+    <div class="section-title">US30 — Parameters (evaluate at 15:30 after NY1 close)</div>
+    ${paramGroup('vs_pdh','Price vs PDH / PDL',null,[
+      {val:'above_pdh',label:'Above PDH',cls:'bull'},
+      {val:'inside_pd',label:'Inside Range',cls:'neutral'},
+      {val:'below_pdl',label:'Below PDL',cls:'bear'}
+    ])}
+    ${paramGroup('vs_prev_close','Price vs Previous Close',null,[
+      {val:'above',label:'Above',cls:'bull'},{val:'below',label:'Below',cls:'bear'}
+    ])}
+    ${paramGroup('vs_asia','Price vs Asia High/Low',null,[
+      {val:'above_asia',label:'Above Asia High',cls:'bull'},
+      {val:'inside_asia',label:'Inside Asia Range',cls:'neutral'},
+      {val:'below_asia',label:'Below Asia Low',cls:'bear'}
+    ])}
+    ${paramGroup('ny1','NY1 Candle (14:30–15:30)',null,[
+      {val:'bull',label:'🟢 Bullish',cls:'bull'},{val:'bear',label:'🔴 Bearish',cls:'bear'}
+    ])}
+    ${paramGroup('weekly_open','Price vs Weekly Open','optional',[
+      {val:'above',label:'Above',cls:'bull'},{val:'below',label:'Below',cls:'bear'},{val:'na',label:'N/A',cls:'neutral'}
+    ])}
+    <button class="calc-btn" onclick="calculate()">⚡ Calculate Bias</button>
+    <button class="reset-btn" onclick="resetParams()">↺ Reset</button>
+  `;
+}
+
+// GER40
+function ger40Params() {
+  return `
+    <div class="section-title">GER40 — Parameters (UK time)</div>
+    ${paramGroup('frankfurt','Frankfurt Candle Direction','07:00–08:00',[
+      {val:'bull',label:'🟢 Bullish',cls:'bull'},{val:'bear',label:'🔴 Bearish',cls:'bear'},{val:'mixed',label:'Mixed',cls:'neutral'}
+    ])}
+    ${paramGroup('frankfurt_break','Frankfurt Broke Asia Level?',null,[
+      {val:'broke_high',label:'Broke Asia High',cls:'bull'},
+      {val:'no_break',label:'No Break',cls:'neutral'},
+      {val:'broke_low',label:'Broke Asia Low',cls:'bear'}
+    ])}
+    ${paramGroup('london_ib','London IB Direction','08:00–09:00',[
+      {val:'bull',label:'🟢 Bullish',cls:'bull'},{val:'bear',label:'🔴 Bearish',cls:'bear'}
+    ])}
+    ${paramGroup('pos09','Position @ 09:00','key decision',[
+      {val:'above_asia',label:'Above Asia High',cls:'bull'},
+      {val:'inside',label:'Inside Range',cls:'neutral'},
+      {val:'below_asia',label:'Below Asia Low',cls:'bear'}
+    ])}
+    ${paramGroup('vs_pdc','Price vs PDC @ 09:00',null,[
+      {val:'above',label:'Above PDC',cls:'bull'},{val:'below',label:'Below PDC',cls:'bear'}
+    ])}
+    ${paramGroup('vs_pdhl','Price vs PDH / PDL @ 09:00',null,[
+      {val:'above_pdh',label:'Above PDH',cls:'bull'},
+      {val:'inside',label:'Inside PD Range',cls:'neutral'},
+      {val:'below_pdl',label:'Below PDL',cls:'bear'}
+    ])}
+    ${paramGroup('pos10','Position @ 10:00','survival check',[
+      {val:'holding',label:'Still Holding',cls:'bull'},
+      {val:'inside',label:'Back Inside Asia',cls:'neutral'},
+      {val:'closed_back',label:'Closed Back Through',cls:'bear'}
+    ])}
+    ${paramGroup('ny_confirm','NY Confirmation','14:30–15:30',[
+      {val:'confirms_bull',label:'🟢 Confirms Bull',cls:'bull'},
+      {val:'no_confirm',label:'Neutral / N/A',cls:'neutral'},
+      {val:'confirms_bear',label:'🔴 Confirms Bear',cls:'bear'}
+    ])}
+    <button class="calc-btn" onclick="calculate()">⚡ Calculate Bias</button>
+    <button class="reset-btn" onclick="resetParams()">↺ Reset</button>
+  `;
+}
+
+// ─── PARAM SET ─────────────────────────────────────────────────────────────────
+function setParam(id, val, cls) {
+  params[id] = val;
+  // Deselect all buttons for this param
+  document.querySelectorAll(`[id^="btn_${id}_"]`).forEach(b => {
+    b.className = 'choice-btn';
+  });
+  const btn = document.getElementById(`btn_${id}_${val}`);
+  if (btn) btn.className = `choice-btn sel-${cls}`;
+}
+
+function resetParams() {
+  params = {};
+  renderParams();
+  renderRightPlaceholder();
+}
+
+// ─── CALCULATIONS ──────────────────────────────────────────────────────────────
+
+// GOLD lookup table
+const goldTable = {
+  'bull|bear|above':  { bullP: 78.90, bearP: 21.10, bias: 'bull', sample: 19 },
+  'bull|bull|above':  { bullP: 77.30, bearP: 22.70, bias: 'bull', sample: 132 },
+  'bull|bull|inside': { bullP: 75.90, bearP: 24.10, bias: 'bull', sample: 216 },
+  'bear|bull|above':  { bullP: 75.00, bearP: 25.00, bias: 'bull', sample: 28 },
+  'bull|bear|inside': { bullP: 66.70, bearP: 33.30, bias: 'bull', sample: 207 },
+  'bear|bull|inside': { bullP: 38.00, bearP: 62.00, bias: 'bear', sample: 192 },
+  'bear|bear|inside': { bullP: 31.20, bearP: 68.80, bias: 'bear', sample: 154 },
+  'bull|bear|below':  { bullP: 22.70, bearP: 77.30, bias: 'bear', sample: 22 },
+  'bear|bull|below':  { bullP: 18.80, bearP: 81.20, bias: 'bear', sample: 16 },
+  'bear|bear|below':  { bullP: 17.30, bearP: 82.70, bias: 'bear', sample: 104 },
+};
+
+function calculate() {
+  if (currentAsset === 'GOLD') calcGold();
+  else if (currentAsset === 'SP500') calcSP500();
+  else if (currentAsset === 'US30') calcUS30();
+  else if (currentAsset === 'GER40') calcGER40();
+}
+
+function calcGold() {
+  const { asia, london, pos10 } = params;
+  if (!asia || !london || !pos10) {
+    alert('Please select all three parameters before calculating.');
+    return;
+  }
+  const posKey = pos10 === 'above' ? 'above' : pos10 === 'below' ? 'below' : 'inside';
+  const key = `${asia}|${london}|${posKey}`;
+  const row = goldTable[key];
+  if (!row) { showError(); return; }
+
+  // Timing insight
+  const timingInsight = (row.bias === 'bull')
+    ? { label: 'Day Low already formed by 10:00', prob: '70.5%', note: 'Bullish A+ condition' }
+    : (row.bias === 'bear' && posKey === 'below')
+      ? { label: 'Day High already formed by 10:00', prob: '72.1%', note: 'Bearish A+ condition' }
+      : null;
+
+  const strength = row.bias === 'bull'
+    ? (row.bullP >= 77 ? 'A+ Bullish' : row.bullP >= 67 ? 'Bullish' : 'Weak Bullish')
+    : (row.bearP >= 80 ? 'A+ Bearish' : row.bearP >= 68 ? 'Bearish' : 'Weak Bearish');
+
+  const mainProb = row.bias === 'bull' ? row.bullP : row.bearP;
+  const dir = row.bias === 'bull' ? 'BULLISH' : 'BEARISH';
+
+  const checks = [
+    { text: `Asia session: ${asia.toUpperCase()}`, ok: (row.bias === 'bull' && asia === 'bull') || (row.bias === 'bear' && asia === 'bear') },
+    { text: `London session: ${london.toUpperCase()}`, ok: (row.bias === 'bull' && london === 'bull') || (row.bias === 'bear' && london === 'bear') },
+    { text: `Position @10:00: ${posKey === 'above' ? 'Above Asia High' : posKey === 'below' ? 'Below Asia Low' : 'Inside Range'}`, ok: (row.bias === 'bull' && posKey === 'above') || (row.bias === 'bear' && posKey === 'below') },
+  ];
+
+  renderResult({
+    asset: 'GOLD',
+    bias: row.bias,
+    direction: dir,
+    grade: strength,
+    prob: mainProb,
+    probLabel: `${row.bias === 'bull' ? 'Bullish' : 'Bearish'} Close Probability`,
+    bullP: row.bullP,
+    bearP: row.bearP,
+    sample: row.sample,
+    checks,
+    insights: [
+      { label: 'Bullish Close', value: `${row.bullP}%`, cls: row.bias === 'bull' ? 'green' : '' },
+      { label: 'Bearish Close', value: `${row.bearP}%`, cls: row.bias === 'bear' ? 'red' : '' },
+      { label: 'Historical Sample', value: `${row.sample} days`, cls: 'blue' },
+      ...(timingInsight ? [{ label: timingInsight.label, value: timingInsight.prob, cls: 'gold' }] : []),
+    ],
+    ruleText: row.bias === 'bull'
+      ? `With Asia ${asia.toUpperCase()} + London ${london.toUpperCase()} + price ${posKey === 'above' ? 'above Asia High' : 'inside range'} @10:00, the market has closed bullish ${row.bullP}% of the time across ${row.sample} observed sessions.`
+      : `With Asia ${asia.toUpperCase()} + London ${london.toUpperCase()} + price ${posKey === 'below' ? 'below Asia Low' : 'inside range'} @10:00, the market has closed bearish ${row.bearP}% of the time across ${row.sample} observed sessions.`,
+  });
+}
+
+function calcSP500() {
+  const { daily_open, pts_above, us_first, vs_asia, vs_preus, europe } = params;
+  if (!daily_open || !us_first || !vs_asia) {
+    alert('Please fill in at least: Price vs Daily Open, US First Hour, and Price vs Asia.'); return;
+  }
+
+  const isBull = daily_open === 'above' && us_first === 'bull' && vs_asia === 'above_asia';
+  const isBear = daily_open === 'below' && us_first === 'bear' && vs_asia === 'below_asia';
+  const has20pts = daily_open === 'above' ? pts_above === '20plus' : pts_above === '20plus';
+  const preusConfirm = vs_preus === 'above_preus' || vs_preus === 'below_preus';
+  const europeAligns = (isBull && europe === 'bull') || (isBear && europe === 'bear');
+
+  let grade, prob, bias;
+
+  if (isBull) {
+    bias = 'bull';
+    if (has20pts && preusConfirm && europeAligns) { grade = 'A+ Bullish (Best Setup)'; prob = '90–92%'; }
+    else if (has20pts && preusConfirm) { grade = 'A+ Bullish'; prob = '88–92%'; }
+    else if (preusConfirm) { grade = 'A+ Bullish'; prob = '88–90%'; }
+    else { grade = 'Bullish (Developing)'; prob = '~75–85%'; }
+  } else if (isBear) {
+    bias = 'bear';
+    if (has20pts && preusConfirm && europeAligns) { grade = 'A+ Bearish (Best Setup)'; prob = '89–94%'; }
+    else if (has20pts && preusConfirm) { grade = 'A+ Bearish'; prob = '86–89%'; }
+    else if (preusConfirm) { grade = 'A+ Bearish'; prob = '86–88%'; }
+    else { grade = 'Bearish (Developing)'; prob = '~75–84%'; }
+  } else {
+    bias = 'no-bias';
+  }
+
+  const checks_bull = [
+    { text: 'Price above Daily Open', ok: daily_open === 'above', req: true },
+    { text: '20+ points above Daily Open', ok: pts_above === '20plus', req: false, label: 'boost' },
+    { text: 'US first hour bullish', ok: us_first === 'bull', req: true },
+    { text: 'Price above Asia High', ok: vs_asia === 'above_asia', req: true },
+    { text: 'Breaking / holding above Pre-US High', ok: vs_preus === 'above_preus', req: false, label: 'boost' },
+    { text: 'Europe bullish (early warning)', ok: europe === 'bull', req: false, label: 'opt' },
+  ];
+  const checks_bear = [
+    { text: 'Price below Daily Open', ok: daily_open === 'below', req: true },
+    { text: '20+ points below Daily Open', ok: pts_above === '20plus', req: false, label: 'boost' },
+    { text: 'US first hour bearish', ok: us_first === 'bear', req: true },
+    { text: 'Price below Asia Low', ok: vs_asia === 'below_asia', req: true },
+    { text: 'Breaking / holding below Pre-US Low', ok: vs_preus === 'below_preus', req: false, label: 'boost' },
+    { text: 'Europe bearish (early warning)', ok: europe === 'bear', req: false, label: 'opt' },
+  ];
+
+  if (bias === 'no-bias') {
+    renderNoBias('S&P 500', 'Conditions are mixed — no A+ bias can be assigned.',
+      'No A+ bias. No trade. All three core conditions must align: price above/below Daily Open, matching US first hour, and price above/below Asia High/Low.');
+    return;
+  }
+
+  renderResult({
+    asset: 'S&P 500',
+    bias,
+    direction: bias === 'bull' ? 'BULLISH' : 'BEARISH',
+    grade,
+    prob,
+    probLabel: 'Estimated Close Probability',
+    checks: (bias === 'bull' ? checks_bull : checks_bear).map(c => ({ text: c.text, ok: c.ok, req: c.req, label: c.label })),
+    ruleText: bias === 'bull'
+      ? 'At 15:00–15:30, price is above Daily Open + above Asia High + US move breaking above Pre-US High = A+ Bullish bias confirmed.'
+      : 'At 15:00–15:30, price is below Daily Open + below Asia Low + US move breaking below Pre-US Low = A+ Bearish bias confirmed.',
+  });
+}
+
+function calcUS30() {
+  const { vs_pdh, vs_prev_close, vs_asia, ny1, weekly_open } = params;
+  if (!vs_pdh || !vs_prev_close || !vs_asia || !ny1) {
+    alert('Please fill in all required parameters before calculating.'); return;
+  }
+
+  const coreBull = vs_pdh === 'above_pdh' && vs_prev_close === 'above' && vs_asia === 'above_asia' && ny1 === 'bull';
+  const coreBear = vs_pdh === 'below_pdl' && vs_prev_close === 'below' && vs_asia === 'below_asia' && ny1 === 'bear';
+  const weeklyBoost = (coreBull && weekly_open === 'above') || (coreBear && weekly_open === 'below');
+
+  let grade, prob, bias;
+
+  if (coreBull) {
+    bias = 'bull';
+    grade = weeklyBoost ? 'A+ Bullish + Weekly Bonus' : 'A+ Bullish';
+    prob = weeklyBoost ? '95–96%' : '93–96%';
+  } else if (coreBear) {
+    bias = 'bear';
+    grade = weeklyBoost ? 'A+ Bearish + Weekly Bonus' : 'A+ Bearish';
+    prob = weeklyBoost ? '95–98%' : '91–98%';
+  } else {
+    const bullScore = [vs_pdh === 'above_pdh', vs_prev_close === 'above', vs_asia === 'above_asia', ny1 === 'bull'].filter(Boolean).length;
+    const bearScore = [vs_pdh === 'below_pdl', vs_prev_close === 'below', vs_asia === 'below_asia', ny1 === 'bear'].filter(Boolean).length;
+    if (bullScore >= 2 || bearScore >= 2) {
+      bias = bullScore > bearScore ? 'bull' : 'bear';
+    } else {
+      bias = 'no-bias';
+    }
+  }
+
+  if (bias === 'no-bias') {
+    renderNoBias('US30', 'Core conditions are not met — no A+ bias.',
+      'All four core conditions must align: Above PDH + Above Previous Close + Above Asia High + Bullish NY1 (or the bearish equivalent).');
+    return;
+  }
+
+  const isBull = bias === 'bull';
+  const checks = [
+    { text: `Price ${isBull ? 'above PDH' : 'below PDL'}`, ok: isBull ? vs_pdh === 'above_pdh' : vs_pdh === 'below_pdl', req: true },
+    { text: `Price ${isBull ? 'above' : 'below'} Previous Close`, ok: isBull ? vs_prev_close === 'above' : vs_prev_close === 'below', req: true },
+    { text: `Price ${isBull ? 'above Asia High' : 'below Asia Low'}`, ok: isBull ? vs_asia === 'above_asia' : vs_asia === 'below_asia', req: true },
+    { text: `NY1 candle ${isBull ? 'bullish' : 'bearish'}`, ok: isBull ? ny1 === 'bull' : ny1 === 'bear', req: true },
+    { text: `Price ${isBull ? 'above' : 'below'} Weekly Open`, ok: weekly_open !== 'na' && (isBull ? weekly_open === 'above' : weekly_open === 'below'), req: false, label: 'bonus' },
+  ];
+
+  renderResult({
+    asset: 'US30',
+    bias,
+    direction: isBull ? 'BULLISH' : 'BEARISH',
+    grade,
+    prob,
+    probLabel: 'Estimated Close Probability',
+    checks,
+    ruleText: isBull
+      ? 'Above PDH + Above Previous Close + Above Asia High + Bullish NY1 = A+ Bullish Bias. Final decision time: 15:30 UK.'
+      : 'Below PDL + Below Previous Close + Below Asia Low + Bearish NY1 = A+ Bearish Bias. Final decision time: 15:30 UK.',
+  });
+}
+
+function calcGER40() {
+  const { frankfurt, frankfurt_break, london_ib, pos09, vs_pdc, vs_pdhl, pos10, ny_confirm } = params;
+  if (!london_ib || !pos09 || !vs_pdc) {
+    alert('Please fill in at least: London IB, Position @09:00, and Price vs PDC.'); return;
+  }
+
+  const coreMinBull = pos09 === 'above_asia' && vs_pdc === 'above' && london_ib === 'bull';
+  const coreMinBear = pos09 === 'below_asia' && vs_pdc === 'below' && london_ib === 'bear';
+  const corePPBull = pos09 === 'above_asia' && vs_pdc === 'above' && vs_pdhl === 'above_pdh';
+  const corePPBear = pos09 === 'below_asia' && vs_pdc === 'below' && vs_pdhl === 'below_pdl';
+
+  // 10:00 survival
+  const survivalBull = pos10 === 'holding';
+  const survivalBear = pos10 === 'holding';
+  const survivalDowngrade = pos10 === 'inside';
+  const survivalCancel = pos10 === 'closed_back';
+
+  // NY confirm
+  const nyBull = ny_confirm === 'confirms_bull';
+  const nyBear = ny_confirm === 'confirms_bear';
+
+  let grade, prob, bias;
+
+  if (!coreMinBull && !coreMinBear) {
+    bias = 'no-bias';
+  } else if (coreMinBull) {
+    bias = 'bull';
+    if (survivalCancel) { bias = 'no-bias'; }
+    else if (survivalDowngrade) { grade = 'Bias Downgraded'; prob = '~55–65%'; }
+    else if (corePPBull && survivalBull && nyBull) { grade = 'A++ Bullish (Strongest)'; prob = '~88–95%'; }
+    else if (corePPBull && survivalBull) { grade = 'A++ Bullish'; prob = '~85–92%'; }
+    else if (survivalBull && nyBull) { grade = 'A+ Bullish (NY confirmed)'; prob = '~80–88%'; }
+    else if (survivalBull) { grade = 'A+ Bullish'; prob = '~75–85%'; }
+    else { grade = 'A+ Bullish'; prob = '~70–82%'; }
+  } else if (coreMinBear) {
+    bias = 'bear';
+    if (survivalCancel) { bias = 'no-bias'; }
+    else if (survivalDowngrade) { grade = 'Bias Downgraded'; prob = '~55–65%'; }
+    else if (corePPBear && survivalBear && nyBear) { grade = 'A++ Bearish (Strongest)'; prob = '~88–95%'; }
+    else if (corePPBear && survivalBear) { grade = 'A++ Bearish'; prob = '~85–92%'; }
+    else if (survivalBear && nyBear) { grade = 'A+ Bearish (NY confirmed)'; prob = '~80–88%'; }
+    else if (survivalBear) { grade = 'A+ Bearish'; prob = '~75–85%'; }
+    else { grade = 'A+ Bearish'; prob = '~70–82%'; }
+  }
+
+  if (bias === 'no-bias' || survivalCancel) {
+    const cancelMsg = survivalCancel
+      ? 'Bias cancelled at 10:00 survival check — price closed back through the Asia level.'
+      : 'Core conditions at 09:00 not met — no A+ bias can be assigned.';
+    renderNoBias('GER40', cancelMsg,
+      'Minimum A+: 09:00 above Asia High + above PDC + London IB bullish (or bearish equivalent). No A+ bias before 09:00.');
+    return;
+  }
+
+  const isBull = bias === 'bull';
+  const checks = [
+    { text: `Frankfurt candle: ${frankfurt || 'not set'}`, ok: (isBull && frankfurt === 'bull') || (!isBull && frankfurt === 'bear'), req: false, label: 'opt' },
+    { text: `Frankfurt broke Asia ${isBull ? 'High' : 'Low'}`, ok: (isBull && frankfurt_break === 'broke_high') || (!isBull && frankfurt_break === 'broke_low'), req: false, label: 'opt' },
+    { text: `London IB ${isBull ? 'bullish' : 'bearish'}`, ok: isBull ? london_ib === 'bull' : london_ib === 'bear', req: true },
+    { text: `09:00 ${isBull ? 'above Asia High' : 'below Asia Low'}`, ok: isBull ? pos09 === 'above_asia' : pos09 === 'below_asia', req: true },
+    { text: `09:00 ${isBull ? 'above PDC' : 'below PDC'}`, ok: isBull ? vs_pdc === 'above' : vs_pdc === 'below', req: true },
+    { text: `09:00 ${isBull ? 'above PDH' : 'below PDL'}`, ok: isBull ? vs_pdhl === 'above_pdh' : vs_pdhl === 'below_pdl', req: false, label: 'boost' },
+    { text: `10:00 still ${isBull ? 'above Asia High' : 'below Asia Low'}`, ok: pos10 === 'holding', req: true },
+    { text: `NY ${isBull ? 'bullish' : 'bearish'} confirmation`, ok: (isBull && nyBull) || (!isBull && nyBear), req: false, label: 'boost' },
+  ];
+
+  renderResult({
+    asset: 'GER40',
+    bias,
+    direction: isBull ? 'BULLISH' : 'BEARISH',
+    grade,
+    prob,
+    probLabel: 'Estimated Close Probability',
+    checks,
+    ruleText: isBull
+      ? 'Minimum A+: 09:00 above Asia High + above PDC + London IB bullish + 10:00 still holding. A++: additionally above PDH + NY confirms bullish.'
+      : 'Minimum A+: 09:00 below Asia Low + below PDC + London IB bearish + 10:00 still holding. A++: additionally below PDL + NY confirms bearish.',
+  });
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function renderResult(r) {
+  const isBull = r.bias === 'bull';
+  const cardClass = isBull ? 'bull' : 'bear';
+  const emoji = isBull ? '🟢' : '🔴';
+  const dirColor = isBull ? 'bull-light' : 'bear-light';
+
+  // Prob bar
+  const probBarHTML = r.bullP !== undefined ? `
+    <div class="prob-bar-wrap">
+      <div class="prob-bar-labels">
+        <span style="color:var(--bull-light)">Bull ${r.bullP}%</span>
+        <span style="color:var(--bear-light)">Bear ${r.bearP}%</span>
+      </div>
+      <div class="prob-bar-track">
+        <div class="prob-bar-fill bull-fill" style="width:${r.bullP}%"></div>
+      </div>
+    </div>` : '';
+
+  // Checklist
+  const checkHTML = r.checks ? `
+    <div class="insight-card">
+      <h4>Parameter Checklist</h4>
+      <ul class="checklist">
+        ${r.checks.map(c => {
+          const icon = c.ok ? '✅' : (c.req === false ? '⬜' : '❌');
+          const badgeClass = c.ok ? 'badge-req' : (c.req === false ? (c.label === 'bonus' ? 'badge-bonus' : 'badge-opt') : 'badge-miss');
+          const badgeText = c.ok ? (c.req === false ? (c.label === 'bonus' ? 'Bonus ✓' : 'Optional ✓') : 'Met') : (c.req === false ? (c.label === 'bonus' ? 'No Bonus' : 'Optional') : 'Missing');
+          return `<li>
+            <span class="check-icon">${icon}</span>
+            <span class="check-text">${c.text}</span>
+            <span class="check-badge ${badgeClass}">${badgeText}</span>
+          </li>`;
+        }).join('')}
+      </ul>
+    </div>` : '';
+
+  const insightHTML = r.insights ? `
+    <div class="insight-card">
+      <h4>Probability Breakdown</h4>
+      ${r.insights.map(ins => `
+        <div class="insight-row">
+          <span class="label">${ins.label}</span>
+          <span class="value ${ins.cls}">${ins.value}</span>
+        </div>`).join('')}
+    </div>` : '';
+
+  document.getElementById('panelRight').innerHTML = `
+    <div class="result-card ${cardClass}">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <span style="font-size:32px">${emoji}</span>
+        <div>
+          <div class="result-direction">${r.direction}</div>
+          <div class="result-grade">${r.asset} — ${r.grade}</div>
+        </div>
+      </div>
+      ${probBarHTML}
+      <div class="result-prob">${r.prob || ''}</div>
+      <div class="result-prob-label">${r.probLabel}</div>
+      <div class="findings-title">Basis</div>
+      <div class="finding-item ${isBull ? 'bull-dot' : 'bear-dot'}">
+        <div class="dot"></div>
+        <div>${r.ruleText}</div>
+      </div>
+    </div>
+    ${insightHTML}
+    ${checkHTML}
+  `;
+}
+
+function renderNoBias(asset, msg, ruleText) {
+  document.getElementById('panelRight').innerHTML = `
+    <div class="result-card no-bias">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <span style="font-size:32px">⚪</span>
+        <div>
+          <div class="result-direction">NO BIAS</div>
+          <div class="result-grade">${asset} — Conditions Not Met</div>
+        </div>
+      </div>
+      <div class="result-prob" style="font-size:24px">No Trade</div>
+      <div class="result-prob-label">No A+ bias signal</div>
+      <div class="findings-title">Reason</div>
+      <div class="finding-item">
+        <div class="dot" style="background:var(--muted)"></div>
+        <div>${msg}</div>
+      </div>
+    </div>
+    <div class="rule-box gold-rule">
+      <strong>Rule:</strong> ${ruleText}
+    </div>
+  `;
+}
+
+function showError() {
+  document.getElementById('panelRight').innerHTML = `<div class="placeholder-text"><div class="ph-icon">⚠️</div><p>Unable to calculate. Please check your inputs.</p></div>`;
+}
+</script>
+</body>
+</html>
