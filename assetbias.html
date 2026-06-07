@@ -3,156 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Morning Bias Tool — Multi-Asset</title>
+<title>Morning Bias Tool</title>
 <style>
 :root {
-  --bg:        #0d0d1a;
-  --panel:     #13132b;
-  --card:      #1a1a35;
-  --border:    #252545;
-  --text:      #e2e8f0;
-  --muted:     #64748b;
-  --bull:      #22c55e;  --bull-dim: #14532d;  --bull-light: rgba(34,197,94,0.10);
-  --bear:      #ef4444;  --bear-dim: #7f1d1d;  --bear-light: rgba(239,68,68,0.10);
-  --chop:      #facc15;  --chop-dim: #713f12;  --chop-light: rgba(250,204,21,0.10);
-  --avoid:     #f97316;  --avoid-light: rgba(249,115,22,0.10);
-  /* Asset accent colours */
-  --c-xau:  #e8b84b;
-  --c-us30: #60a5fa;
-  --c-sp5:  #34d399;
-  --c-ger:  #c084fc;
+  --bg:     #0d0d1a; --panel:  #13132b; --card:   #1a1a35;
+  --border: #252545; --text:   #e2e8f0; --muted:  #64748b;
+  --bull: #22c55e; --bull-dim: #14532d; --bull-bg: rgba(34,197,94,.10);
+  --bear: #ef4444; --bear-dim: #7f1d1d; --bear-bg: rgba(239,68,68,.10);
+  --avoid: #f97316; --avoid-bg: rgba(249,115,22,.10);
+  --chop: #facc15;
+  --ac: #e8b84b;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:20px 12px 60px}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:20px 14px 60px}
 
-/* ── HEADER ── */
-.header{text-align:center;margin-bottom:28px}
-.header h1{font-size:clamp(1.3rem,3.5vw,1.9rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:4px}
-.header p{font-size:.82rem;color:var(--muted)}
-.badge{display:inline-block;background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:.7rem;padding:3px 10px;border-radius:99px;margin-top:6px}
-.today{font-size:.75rem;color:var(--muted);margin-top:6px}
-.today span{color:var(--text);font-weight:600}
+/* HEADER */
+.hdr{text-align:center;margin-bottom:24px}
+.hdr h1{font-size:clamp(1.25rem,3.5vw,1.85rem);font-weight:800;letter-spacing:-.02em;color:var(--ac);margin-bottom:4px}
+.hdr p{font-size:.8rem;color:var(--muted)}
+.today{font-size:.73rem;color:var(--muted);margin-top:6px}
+.today b{color:var(--text)}
 
-/* ── ASSET TABS ── */
-.asset-tabs{display:flex;gap:8px;max-width:860px;margin:0 auto 20px;overflow-x:auto;padding-bottom:4px}
-.asset-tab{flex:1;min-width:120px;background:var(--card);border:2px solid var(--border);border-radius:12px;padding:12px 10px;cursor:pointer;text-align:center;transition:all .2s;position:relative;overflow:hidden}
-.asset-tab .at-sym{font-size:1.25rem;font-weight:800;margin-bottom:2px}
-.asset-tab .at-name{font-size:.72rem;color:var(--muted);font-weight:500;white-space:nowrap}
-.asset-tab.active{border-color:var(--ac);background:rgba(255,255,255,.04)}
-.asset-tab.active .at-sym{color:var(--ac)}
-.asset-tab:not(.active):hover{border-color:rgba(255,255,255,.15)}
-.asset-tab .at-pip{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--ac);opacity:0;transition:.2s}
-.asset-tab.active .at-pip{opacity:1}
+/* ASSET TABS */
+.tabs{display:flex;gap:8px;max-width:880px;margin:0 auto 20px;overflow-x:auto;padding:2px 2px 6px}
+.tab{flex:1;min-width:110px;background:var(--card);border:2px solid var(--border);border-radius:12px;padding:11px 8px 9px;cursor:pointer;text-align:center;transition:border-color .18s,background .18s;position:relative}
+.tab .tsym{font-size:1.1rem;font-weight:800;margin-bottom:1px;transition:color .18s}
+.tab .tname{font-size:.65rem;color:var(--muted);white-space:nowrap}
+.tab .tbar{position:absolute;bottom:0;left:12px;right:12px;height:3px;border-radius:3px 3px 0 0;background:var(--ac);opacity:0;transition:.18s}
+.tab.active .tbar{opacity:1}
+.tab.active{border-color:var(--ac);background:rgba(255,255,255,.03)}
+.tab.active .tsym{color:var(--ac)}
+.tab:not(.active):hover{border-color:rgba(255,255,255,.18)}
 
-/* ── MAIN LAYOUT ── */
-.main{max-width:860px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:16px}
-@media(min-width:700px){.main{grid-template-columns:1fr 1fr}}
+/* LAYOUT */
+.wrap{max-width:880px;margin:0 auto}
+.grid{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:680px){.grid{grid-template-columns:1fr 1fr}}
+.grid.single{grid-template-columns:1fr}
 
-/* ── PANELS ── */
-.pane{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px}
-.pane-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:6px}
-.pane-title::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ac)}
+/* PANE */
+.pane{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px}
+.pane-hd{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.pane-hd::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--ac);flex-shrink:0}
 
-/* ── PARAM GROUP ── */
-.param-group{margin-bottom:18px}
-.param-group:last-child{margin-bottom:0}
-.param-label{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
-.param-time{font-size:.65rem;font-weight:500;color:var(--border-light,#3a3a60);background:var(--card);padding:2px 7px;border-radius:6px;letter-spacing:.03em}
+/* NOTE BANNER */
+.note-banner{background:rgba(255,255,255,.03);border:1px solid var(--border);border-left:3px solid var(--ac);border-radius:0 8px 8px 0;font-size:.73rem;color:var(--muted);padding:8px 12px;margin-bottom:14px;line-height:1.5}
 
-/* ── OPTION BUTTONS ── */
-.opt-grid{display:flex;flex-direction:column;gap:5px}
-.opt-btn{background:var(--card);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-size:.82rem;font-weight:500;padding:9px 12px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:7px;transition:all .15s;line-height:1.3}
-.opt-btn .ob-icon{font-size:.95rem;flex-shrink:0;width:18px;text-align:center}
-.opt-btn .ob-sub{font-size:.67rem;color:var(--muted);display:block;margin-top:1px}
-.opt-btn:hover{border-color:var(--ac);color:var(--ac)}
-.opt-btn.active{border-color:var(--ac);background:rgba(255,255,255,.04);color:var(--ac);font-weight:700}
-.opt-btn.active .ob-sub{color:color-mix(in srgb, var(--ac) 60%, var(--muted))}
-.opt-btn.opt-avoid.active{border-color:var(--avoid);color:var(--avoid);background:var(--avoid-light)}
-.opt-btn.opt-bull.active{border-color:var(--bull);color:var(--bull);background:var(--bull-light)}
-.opt-btn.opt-bear.active{border-color:var(--bear);color:var(--bear);background:var(--bear-light)}
+/* PARAM GROUP */
+.pg{margin-bottom:15px}
+.pg:last-child{margin-bottom:0}
+.pg-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.pg-time{font-size:.62rem;background:var(--card);border:1px solid var(--border);border-radius:5px;padding:2px 7px;letter-spacing:.02em}
 
-/* ── RESULTS PANE ── */
-.results-pane{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;min-height:280px}
-@media(min-width:700px){.results-pane{grid-column:1/3}}
+/* OPTION BUTTONS */
+.opt-list{display:flex;flex-direction:column;gap:5px}
+.opt{background:var(--card);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-size:.8rem;font-weight:500;padding:8px 11px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:all .14s;line-height:1.3;width:100%}
+.opt .ico{width:20px;text-align:center;flex-shrink:0;font-size:.95rem}
+.opt .sub{font-size:.64rem;color:var(--muted);display:block;margin-top:1px;transition:.14s}
+.opt:hover{border-color:var(--ac);color:var(--ac)}
+.opt.active{border-color:var(--ac);background:rgba(255,255,255,.04);color:var(--ac);font-weight:700}
+.opt.active .sub{color:color-mix(in srgb,var(--ac) 55%,var(--muted))}
+/* per-side active colours */
+.opt.ob.active{border-color:var(--bull);background:var(--bull-bg);color:var(--bull)}
+.opt.ob.active .sub{color:color-mix(in srgb,var(--bull) 55%,var(--muted))}
+.opt.or.active{border-color:var(--bear);background:var(--bear-bg);color:var(--bear)}
+.opt.or.active .sub{color:color-mix(in srgb,var(--bear) 55%,var(--muted))}
+.opt.oa.active{border-color:var(--avoid);background:var(--avoid-bg);color:var(--avoid)}
+.opt.oa.active .sub{color:color-mix(in srgb,var(--avoid) 55%,var(--muted))}
 
-/* ── PROMPT STATE ── */
-.prompt-state{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 20px;color:var(--muted)}
-.prompt-icon{font-size:2.8rem;margin-bottom:12px}
-.prompt-state p{font-size:.88rem}.prompt-state strong{color:var(--text);display:block;margin-bottom:4px}
+/* RESULTS */
+.res-pane{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;min-height:200px}
+.prompt{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:50px 20px;color:var(--muted)}
+.prompt-ico{font-size:2.5rem;margin-bottom:12px}
+.prompt p{font-size:.85rem} .prompt b{color:var(--text)}
 
-/* ── RESULT CARD ── */
-.result-card{animation:fadeUp .3s ease}
-.result-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
-.result-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.rtag{font-size:.67rem;font-weight:700;padding:3px 9px;border-radius:99px;border:1px solid}
+/* RESULT CARD */
+.rc{animation:fadeUp .28s ease}
 
-/* ── GRADE BADGE ── */
-.grade-badge{flex-shrink:0;text-align:center;background:var(--card);border:2px solid var(--border);border-radius:12px;padding:10px 16px;min-width:80px}
-.gb-grade{font-size:1.7rem;font-weight:900;line-height:1}
-.gb-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
-.grade-aplus{color:var(--ac);border-color:var(--ac)!important;background:rgba(255,255,255,.03)!important}
-.grade-a    {color:var(--bull)}
-.grade-b    {color:var(--chop)}
-.grade-avoid{color:var(--avoid);border-color:var(--avoid)!important;background:var(--avoid-light)!important}
+/* Today tags */
+.sel-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px}
+.stag{font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:99px;border:1px solid;white-space:nowrap}
+.stag-bull{background:var(--bull-bg);border-color:var(--bull);color:var(--bull)}
+.stag-bear{background:var(--bear-bg);border-color:var(--bear);color:var(--bear)}
+.stag-avoid{background:var(--avoid-bg);border-color:var(--avoid);color:var(--avoid)}
+.stag-neut{background:var(--card);border-color:var(--border);color:var(--muted)}
 
-/* ── SCORE BAR ── */
-.score-section{margin-bottom:18px}
-.score-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-.score-bars{display:flex;flex-direction:column;gap:7px}
-.sbar-row{display:flex;align-items:center;gap:9px}
-.sbar-name{font-size:.75rem;font-weight:600;width:52px;flex-shrink:0}
-.sbar-track{flex:1;height:10px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
-.sbar-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
-.sfill-bull{background:linear-gradient(90deg,var(--bull-dim),var(--bull))}
-.sfill-bear{background:linear-gradient(90deg,var(--bear-dim),var(--bear))}
-.sbar-val{font-size:.78rem;font-weight:700;width:36px;text-align:right;flex-shrink:0}
+/* Verdict + grade row */
+.verdict-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap}
+.verdict{flex:1;min-width:200px;border-radius:11px;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.verdict.vb{background:var(--bull-bg);border:1.5px solid rgba(34,197,94,.3)}
+.verdict.vr{background:var(--bear-bg);border:1.5px solid rgba(239,68,68,.3)}
+.verdict.va{background:var(--avoid-bg);border:1.5px solid rgba(249,115,22,.3)}
+.verdict.vn{background:rgba(100,116,139,.07);border:1.5px solid rgba(100,116,139,.25)}
+.v-ico{font-size:1.9rem;flex-shrink:0}
+.v-lbl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px}
+.v-title{font-size:1.05rem;font-weight:800}
+.v-sub{font-size:.72rem;color:var(--muted);margin-top:3px}
 
-/* ── SIGNAL PILLS (SP500, GER40) ── */
-.signals-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
-.sig-pill{font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:99px;border:1px solid}
-.sig-bull{background:var(--bull-light);border-color:var(--bull);color:var(--bull)}
-.sig-bear{background:var(--bear-light);border-color:var(--bear);color:var(--bear)}
-.sig-neut{background:var(--card);border-color:var(--border);color:var(--muted)}
-.sig-avoid{background:var(--avoid-light);border-color:var(--avoid);color:var(--avoid)}
+.grade-box{flex-shrink:0;text-align:center;background:var(--card);border:2px solid var(--border);border-radius:12px;padding:10px 14px;min-width:76px}
+.gb-g{font-size:1.65rem;font-weight:900;line-height:1}
+.gb-l{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
+.gaplus{color:var(--ac);border-color:var(--ac)!important}
+.ga   {color:var(--bull)}
+.gb   {color:var(--chop)}
+.gavoid{color:var(--avoid);border-color:var(--avoid)!important;background:var(--avoid-bg)!important}
 
-/* ── CONDITIONS LIST ── */
-.cond-list{margin-bottom:18px}
-.cond-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
-.cond-items{display:flex;flex-direction:column;gap:5px}
-.cond-item{display:flex;align-items:center;gap:9px;font-size:.8rem;padding:7px 10px;border-radius:8px;background:var(--card)}
+/* Score bars (XAUUSD, US30) */
+.score-sec{margin-bottom:16px}
+.sec-lbl{font-size:.67rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:7px}
+.sbar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.sbar-nm{font-size:.73rem;font-weight:600;width:48px;flex-shrink:0}
+.sbar-track{flex:1;height:9px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
+.sbar-fill{height:100%;border-radius:99px;transition:width .55s cubic-bezier(.4,0,.2,1)}
+.sf-bull{background:linear-gradient(90deg,var(--bull-dim),var(--bull))}
+.sf-bear{background:linear-gradient(90deg,var(--bear-dim),var(--bear))}
+.sbar-val{font-size:.75rem;font-weight:700;width:38px;text-align:right;flex-shrink:0}
+
+/* Signal pills (SP500, GER40) */
+.sig-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.spill{font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:99px;border:1px solid}
+.spill-bull{background:var(--bull-bg);border-color:var(--bull);color:var(--bull)}
+.spill-bear{background:var(--bear-bg);border-color:var(--bear);color:var(--bear)}
+.spill-neut{background:var(--card);border-color:var(--border);color:var(--muted)}
+
+/* Conditions */
+.cond-sec{margin-bottom:14px}
+.cond-list{display:flex;flex-direction:column;gap:4px}
+.cond-item{display:flex;align-items:center;gap:8px;font-size:.78rem;padding:7px 10px;border-radius:8px;background:var(--card)}
 .ci-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.ci-text{flex:1}
-.ci-pts{font-size:.72rem;font-weight:700;margin-left:auto;padding:2px 7px;border-radius:6px}
-.ci-bull{color:var(--bull)}.ci-pts-bull{background:var(--bull-light);color:var(--bull)}
-.ci-bear{color:var(--bear)}.ci-pts-bear{background:var(--bear-light);color:var(--bear)}
+.ci-txt{flex:1}
+.ci-pts{font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.ci-bull{color:var(--bull)} .ci-pts-bull{background:var(--bull-bg);color:var(--bull)}
+.ci-bear{color:var(--bear)} .ci-pts-bear{background:var(--bear-bg);color:var(--bear)}
 .ci-neut{color:var(--muted)}.ci-pts-neut{background:var(--card);color:var(--muted);border:1px solid var(--border)}
-.ci-avoid{color:var(--avoid)}.ci-pts-avoid{background:var(--avoid-light);color:var(--avoid)}
+.ci-avoid{color:var(--avoid)}.ci-pts-avoid{background:var(--avoid-bg);color:var(--avoid)}
 
-/* ── VERDICT BOX ── */
-.verdict{border-radius:11px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:10px}
-.verdict.v-bull{background:var(--bull-light);border:1.5px solid rgba(34,197,94,.35)}
-.verdict.v-bear{background:var(--bear-light);border:1.5px solid rgba(239,68,68,.35)}
-.verdict.v-avoid{background:var(--avoid-light);border:1.5px solid rgba(249,115,22,.35)}
-.verdict.v-neut{background:rgba(100,116,139,.08);border:1.5px solid rgba(100,116,139,.3)}
-.v-icon{font-size:2rem;line-height:1;flex-shrink:0}
-.v-body .v-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px}
-.v-body .v-title{font-size:1.1rem;font-weight:800}
-.v-body .v-sub{font-size:.75rem;margin-top:3px;color:var(--muted)}
+/* Hard avoid banner */
+.hard-avoid{background:var(--avoid-bg);border:1.5px solid rgba(249,115,22,.4);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:.8rem;font-weight:600;color:var(--avoid)}
+.ha-ico{font-size:1.4rem;flex-shrink:0}
 
-/* ── ADR WIDGET (XAUUSD only) ── */
-.adr-widget{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:16px;margin-top:14px}
-.adr-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:12px}
-.adr-inputs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
-.adr-field label{font-size:.65rem;color:var(--muted);display:block;margin-bottom:4px}
-.adr-field input{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:.85rem;font-family:inherit;padding:7px 9px;outline:none;transition:.15s}
-.adr-field input:focus{border-color:var(--c-xau)}
-.adr-result{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* ADR widget */
+.adr{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:14px;margin-top:14px}
+.adr-hd{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:11px}
+.adr-in{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.adr-field label{font-size:.63rem;color:var(--muted);display:block;margin-bottom:4px}
+.adr-field input{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:.82rem;font-family:inherit;padding:7px 8px;outline:none;transition:.14s}
+.adr-field input:focus{border-color:var(--ac)}
+.adr-out{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .adr-stat{background:var(--panel);border-radius:8px;padding:10px;text-align:center}
-.adr-stat .av{font-size:1.2rem;font-weight:800;margin-bottom:2px}
-.adr-stat .al{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.adr-v{font-size:1.15rem;font-weight:800;margin-bottom:2px}
+.adr-l{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.adr-msg{font-size:.73rem;font-weight:600;padding:7px 10px;border-radius:7px}
 
-/* ── RESET BTN ── */
-.reset-btn{display:block;margin:12px auto 0;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:.75rem;padding:6px 16px;cursor:pointer;transition:.15s}
+/* Reset */
+.reset-btn{display:block;margin:14px auto 0;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:.72rem;font-family:inherit;padding:6px 18px;cursor:pointer;transition:.14s}
 .reset-btn:hover{border-color:var(--text);color:var(--text)}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
@@ -160,614 +164,522 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 </head>
 <body>
 
-<div class="header">
-  <h1 id="headerTitle">Morning Bias Tool</h1>
-  <p>Select your asset, enter today's session conditions, and get your statistical bias</p>
-  <div class="badge">XAUUSD · US30 · S&P500 · GER40</div>
+<div class="hdr">
+  <h1 id="hdrTitle">Morning Bias Tool</h1>
+  <p>Select your asset · Enter today's session conditions · Get your statistical bias</p>
   <div class="today" id="todayLine"></div>
 </div>
 
-<!-- Asset Tabs -->
-<div class="asset-tabs" id="assetTabs"></div>
-
-<!-- Main grid -->
-<div class="main" id="mainGrid">
-  <div class="pane" id="paramPane"><div class="pane-title" id="paneTitle">Parameters</div><div id="paramBody"></div></div>
-  <div class="pane" id="paramPane2" style="display:none"><div class="pane-title" id="paneTitle2">Additional</div><div id="paramBody2"></div></div>
-  <div class="results-pane" id="resultsPane"></div>
+<div class="wrap">
+  <div class="tabs" id="tabs"></div>
+  <div class="grid" id="grid">
+    <div class="pane" id="pane1"><div class="pane-hd" id="phd1">Inputs</div><div id="pbody1"></div></div>
+    <div class="pane" id="pane2" style="display:none"><div class="pane-hd" id="phd2">Inputs</div><div id="pbody2"></div></div>
+    <div class="res-pane" id="resPaneEl">
+      <div class="prompt"><div class="prompt-ico">⚡</div><p><b>Select an asset above</b><br>then fill in all conditions</p></div>
+    </div>
+  </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════════════
-// ASSET CONFIGS
-// ══════════════════════════════════════════════════════════════
+// ═══════════════ ASSET CONFIGS ═══════════════
+
 const ASSETS = {
 
-  // ─── XAUUSD ───────────────────────────────────────────────
-  xauusd: {
-    id: 'xauusd', symbol: 'XAU', name: 'XAUUSD', sub: 'Gold · Asia/11:00 Model',
-    color: '#e8b84b',
-    twoCol: true,
-    col1: ['asia_dir', 'asia_liq'],
-    col2: ['pos_1100', 'acceptance'],
-    params: [
-      { id: 'asia_dir', label: 'Asia Direction', time: '00:00 – 07:00 UK',
-        options: [
-          { val: 'bull', icon: '▲', label: 'Bullish Close', sub: 'Close above open', cls: 'opt-bull' },
-          { val: 'bear', icon: '▼', label: 'Bearish Close', sub: 'Close below open', cls: 'opt-bear' },
-        ]},
-      { id: 'asia_liq', label: 'Asia Liquidity Taken', time: '07:00 onwards',
-        options: [
-          { val: 'high_only', icon: '↑', label: 'Asia High only',  sub: 'Low survives', cls: 'opt-bull' },
-          { val: 'low_only',  icon: '↓', label: 'Asia Low only',   sub: 'High survives', cls: 'opt-bear' },
-          { val: 'both',      icon: '✕', label: 'Both sides swept', sub: 'Hard avoid', cls: 'opt-avoid' },
-        ]},
-      { id: 'pos_1100', label: '11:00 UK Price Position', time: '11:00 UK',
-        options: [
-          { val: 'above_pdh',  icon: '▲▲', label: 'Above PDH',         sub: '+2 pts — strong bull', cls: 'opt-bull' },
-          { val: 'above_high', icon: '▲',  label: 'Above Asia High',    sub: '+1 pt — bull', cls: 'opt-bull' },
-          { val: 'inside',     icon: '↔',  label: 'Inside Asia Range',  sub: 'Weak — no A+', cls: '' },
-          { val: 'below_low',  icon: '▼',  label: 'Below Asia Low',     sub: '+1 pt — bear', cls: 'opt-bear' },
-          { val: 'below_pdl',  icon: '▼▼', label: 'Below PDL',          sub: '+2 pts — strong bear', cls: 'opt-bear' },
-        ]},
-      { id: 'acceptance', label: 'Acceptance (10:00–11:00)', time: 'Hold check',
-        options: [
-          { val: 'above', icon: '✓', label: 'Accepted above Asia High', sub: '+2 pts — A+ bull confirm', cls: 'opt-bull' },
-          { val: 'below', icon: '✓', label: 'Accepted below Asia Low',  sub: '+2 pts — A+ bear confirm', cls: 'opt-bear' },
-          { val: 'returns', icon: '✗', label: 'Breaks then returns',    sub: 'No A+ — model invalidated', cls: 'opt-avoid' },
-        ]},
+  xauusd:{
+    id:'xauusd', sym:'XAU', name:'XAUUSD', label:'Gold', color:'#e8b84b',
+    col1:['asia_dir','asia_liq'], col2:['pos_1100','acceptance'],
+    note:'Score bullish & bearish points separately. The dominant score determines grade.',
+    params:[
+      {id:'asia_dir', label:'Asia Direction', time:'00:00 – 07:00 UK',
+       opts:[
+         {v:'bull',ico:'▲',lbl:'Bullish Close',sub:'Close above open',cls:'ob'},
+         {v:'bear',ico:'▼',lbl:'Bearish Close',sub:'Close below open',cls:'or'},
+       ]},
+      {id:'asia_liq', label:'Asia Liquidity Taken', time:'07:00 onwards',
+       opts:[
+         {v:'high_only',ico:'↑',lbl:'Asia High only',   sub:'Low survives — Bull (+2)',cls:'ob'},
+         {v:'low_only', ico:'↓',lbl:'Asia Low only',    sub:'High survives — Bear (+2)',cls:'or'},
+         {v:'both',     ico:'✕',lbl:'Both sides swept',  sub:'Hard avoid — model invalid',cls:'oa'},
+       ]},
+      {id:'pos_1100', label:'11:00 UK Price Position', time:'11:00 UK',
+       opts:[
+         {v:'above_pdh', ico:'▲▲',lbl:'Above PDH',        sub:'Strong Bull — +2 pts',cls:'ob'},
+         {v:'above_high',ico:'▲', lbl:'Above Asia High',   sub:'Bull — +1 pt',cls:'ob'},
+         {v:'inside',    ico:'↔', lbl:'Inside Asia Range', sub:'Weak — no A+',cls:''},
+         {v:'below_low', ico:'▼', lbl:'Below Asia Low',    sub:'Bear — +1 pt',cls:'or'},
+         {v:'below_pdl', ico:'▼▼',lbl:'Below PDL',         sub:'Strong Bear — +2 pts',cls:'or'},
+       ]},
+      {id:'acceptance', label:'Acceptance (10:00 – 11:00)', time:'Hold check',
+       opts:[
+         {v:'above',  ico:'✓',lbl:'Accepted above Asia High',sub:'A+ Bull confirm — +2 pts',cls:'ob'},
+         {v:'below',  ico:'✓',lbl:'Accepted below Asia Low', sub:'A+ Bear confirm — +2 pts',cls:'or'},
+         {v:'returns',ico:'✗',lbl:'Breaks then returns inside',sub:'No A+ — range hold failed',cls:'oa'},
+       ]},
     ],
-    score(s) {
-      const { asia_dir, asia_liq, pos_1100, acceptance } = s;
-      if (asia_liq === 'both') return {
-        hardAvoid: true, reason: 'Both Asia High & Low swept — model is invalid today.',
-        grade: 'Avoid', dominant: 'avoid', bull: 0, bear: 0, maxBull: 7, maxBear: 7, conditions: []
+    score(s){
+      if(s.asia_liq==='both') return {
+        hardAvoid:true, reason:'Both Asia High & Low swept. Model is invalid today.',
+        grade:'Avoid', dominant:'avoid', bull:0, bear:0, maxBull:7, maxBear:7, conds:[]
       };
-      let bull = 0, bear = 0;
-      const conds = [];
-      if (asia_dir === 'bull') { bull+=1; conds.push({t:'Bullish Asia',pts:'+1',side:'bull'}); }
-      if (asia_dir === 'bear') { bear+=1; conds.push({t:'Bearish Asia',pts:'+1',side:'bear'}); }
-      if (asia_liq === 'high_only') { bull+=2; conds.push({t:'Asia High only taken',pts:'+2',side:'bull'}); }
-      if (asia_liq === 'low_only')  { bear+=2; conds.push({t:'Asia Low only taken', pts:'+2',side:'bear'}); }
-      if (pos_1100 === 'above_pdh')  { bull+=2; conds.push({t:'11:00 above PDH (incl. Asia High)',pts:'+2',side:'bull'}); }
-      if (pos_1100 === 'above_high') { bull+=1; conds.push({t:'11:00 above Asia High',pts:'+1',side:'bull'}); }
-      if (pos_1100 === 'inside')     { conds.push({t:'11:00 inside Asia Range',pts:'0',side:'neut',note:'No A+'}); }
-      if (pos_1100 === 'below_low')  { bear+=1; conds.push({t:'11:00 below Asia Low', pts:'+1',side:'bear'}); }
-      if (pos_1100 === 'below_pdl')  { bear+=2; conds.push({t:'11:00 below PDL (incl. Asia Low)',pts:'+2',side:'bear'}); }
-      if (acceptance === 'above')   { bull+=2; conds.push({t:'Accepted above Asia High',pts:'+2',side:'bull'}); }
-      if (acceptance === 'below')   { bear+=2; conds.push({t:'Accepted below Asia Low', pts:'+2',side:'bear'}); }
-      if (acceptance === 'returns') { conds.push({t:'Breaks then returns inside range',pts:'0',side:'avoid',note:'No A+'}); }
-      const dominant = bull>bear?'bull':bear>bull?'bear':'neut';
-      const score = Math.max(bull,bear);
-      let grade = score>=5?'A+':score>=3?'A':score>=1?'B':'Avoid';
-      if (acceptance==='returns'&&grade==='A+') grade='A';
-      if (pos_1100==='inside'&&grade==='A+') grade='A';
-      return { grade, dominant, bull, bear, maxBull:7, maxBear:7, conditions:conds };
+      let bull=0, bear=0; const conds=[];
+      if(s.asia_dir==='bull'){bull+=1;conds.push({t:'Bullish Asia',p:'+1',s:'bull'});}
+      if(s.asia_dir==='bear'){bear+=1;conds.push({t:'Bearish Asia',p:'+1',s:'bear'});}
+      if(s.asia_liq==='high_only'){bull+=2;conds.push({t:'Asia High only taken',p:'+2',s:'bull'});}
+      if(s.asia_liq==='low_only') {bear+=2;conds.push({t:'Asia Low only taken', p:'+2',s:'bear'});}
+      if(s.pos_1100==='above_pdh') {bull+=2;conds.push({t:'11:00 above PDH (incl. Asia High)',p:'+2',s:'bull'});}
+      if(s.pos_1100==='above_high'){bull+=1;conds.push({t:'11:00 above Asia High',p:'+1',s:'bull'});}
+      if(s.pos_1100==='inside')    {conds.push({t:'11:00 inside Asia Range',p:'0',s:'neut',n:'No A+'});}
+      if(s.pos_1100==='below_low') {bear+=1;conds.push({t:'11:00 below Asia Low', p:'+1',s:'bear'});}
+      if(s.pos_1100==='below_pdl') {bear+=2;conds.push({t:'11:00 below PDL (incl. Asia Low)',p:'+2',s:'bear'});}
+      if(s.acceptance==='above')  {bull+=2;conds.push({t:'Accepted above Asia High',p:'+2',s:'bull'});}
+      if(s.acceptance==='below')  {bear+=2;conds.push({t:'Accepted below Asia Low', p:'+2',s:'bear'});}
+      if(s.acceptance==='returns'){conds.push({t:'Breaks then returns inside range',p:'0',s:'avoid',n:'No A+'});}
+      const dom=bull>bear?'bull':bear>bull?'bear':'neut';
+      const sc=Math.max(bull,bear);
+      let g=sc>=5?'A+':sc>=3?'A':sc>=1?'B':'Avoid';
+      if(s.acceptance==='returns'&&g==='A+') g='A';
+      if(s.pos_1100==='inside'&&g==='A+') g='A';
+      return {grade:g, dominant:dom, bull, bear, maxBull:7, maxBear:7, conds};
     },
-    showADR: true,
+    showADR:true
   },
 
-  // ─── US30 ─────────────────────────────────────────────────
-  us30: {
-    id: 'us30', symbol: 'US30', name: 'US30', sub: 'Dow Jones · 14:30 UK Decision',
-    color: '#60a5fa',
-    twoCol: true,
-    col1: ['pdh_pdl', 'asia_pos'],
-    col2: ['liq_seq', 'london_pos'],
-    params: [
-      { id: 'pdh_pdl', label: 'Price vs PDH / PDL', time: '14:30 UK check',
-        options: [
-          { val: 'above_pdh', icon: '▲', label: 'Above PDH',            sub: '+3 pts — strong bull', cls: 'opt-bull' },
-          { val: 'between',   icon: '↔', label: 'Between PDH & PDL',    sub: '0 pts', cls: '' },
-          { val: 'below_pdl', icon: '▼', label: 'Below PDL',            sub: '+3 pts — strong bear', cls: 'opt-bear' },
-        ]},
-      { id: 'asia_pos', label: 'Price vs Asia Range', time: '14:30 UK check',
-        options: [
-          { val: 'above_high', icon: '▲', label: 'Above Asia High', sub: '+3 pts — bull', cls: 'opt-bull' },
-          { val: 'inside',     icon: '↔', label: 'Inside Asia',     sub: '0 pts', cls: '' },
-          { val: 'below_low',  icon: '▼', label: 'Below Asia Low',  sub: '+3 pts — bear', cls: 'opt-bear' },
-        ]},
-      { id: 'liq_seq', label: 'Asia Liquidity Sequence', time: 'Observed by 14:30',
-        options: [
-          { val: 'bull', icon: '↑', label: 'Bullish sequence', sub: 'Low swept first → reversed up  (+2)', cls: 'opt-bull' },
-          { val: 'neut', icon: '↔', label: 'Neutral / unclear', sub: '0 pts', cls: '' },
-          { val: 'bear', icon: '↓', label: 'Bearish sequence', sub: 'High swept first → reversed down  (+2)', cls: 'opt-bear' },
-        ]},
-      { id: 'london_pos', label: 'Price vs London Range', time: '14:30 UK check',
-        options: [
-          { val: 'above_high', icon: '▲', label: 'Above London High', sub: '+2 pts — bull', cls: 'opt-bull' },
-          { val: 'inside',     icon: '↔', label: 'Inside London',     sub: '0 pts', cls: '' },
-          { val: 'below_low',  icon: '▼', label: 'Below London Low',  sub: '+2 pts — bear', cls: 'opt-bear' },
-        ]},
+  us30:{
+    id:'us30', sym:'US30', name:'US30', label:'Dow Jones', color:'#60a5fa',
+    col1:['pdh_pdl','asia_pos'], col2:['liq_seq','london_pos'],
+    note:'No A+ bias before 14:30 UK. Score only what is true at 14:30 UK time.',
+    params:[
+      {id:'pdh_pdl', label:'Price vs PDH / PDL', time:'14:30 UK check',
+       opts:[
+         {v:'above_pdh',ico:'▲',lbl:'Above PDH',         sub:'+3 pts — Strong bull',cls:'ob'},
+         {v:'between',  ico:'↔',lbl:'Between PDH & PDL', sub:'0 pts — Neutral',cls:''},
+         {v:'below_pdl',ico:'▼',lbl:'Below PDL',         sub:'+3 pts — Strong bear',cls:'or'},
+       ]},
+      {id:'asia_pos', label:'Price vs Asia Range', time:'14:30 UK check',
+       opts:[
+         {v:'above_high',ico:'▲',lbl:'Above Asia High', sub:'+3 pts — Bull',cls:'ob'},
+         {v:'inside',    ico:'↔',lbl:'Inside Asia',     sub:'0 pts — Neutral',cls:''},
+         {v:'below_low', ico:'▼',lbl:'Below Asia Low',  sub:'+3 pts — Bear',cls:'or'},
+       ]},
+      {id:'liq_seq', label:'Asia Liquidity Sequence', time:'Observed by 14:30',
+       opts:[
+         {v:'bull',ico:'↑',lbl:'Bullish sequence',  sub:'Low swept first, reversed up — +2',cls:'ob'},
+         {v:'neut',ico:'↔',lbl:'Neutral / unclear', sub:'0 pts',cls:''},
+         {v:'bear',ico:'↓',lbl:'Bearish sequence',  sub:'High swept first, reversed down — +2',cls:'or'},
+       ]},
+      {id:'london_pos', label:'Price vs London Range', time:'14:30 UK check',
+       opts:[
+         {v:'above_high',ico:'▲',lbl:'Above London High', sub:'+2 pts — Bull',cls:'ob'},
+         {v:'inside',    ico:'↔',lbl:'Inside London',     sub:'0 pts — Neutral',cls:''},
+         {v:'below_low', ico:'▼',lbl:'Below London Low',  sub:'+2 pts — Bear',cls:'or'},
+       ]},
     ],
-    score(s) {
-      const { pdh_pdl, asia_pos, liq_seq, london_pos } = s;
-      let bull=0,bear=0;
-      const conds=[];
-      if (pdh_pdl==='above_pdh')   { bull+=3; conds.push({t:'Price above PDH',pts:'+3',side:'bull'}); }
-      if (pdh_pdl==='below_pdl')   { bear+=3; conds.push({t:'Price below PDL',pts:'+3',side:'bear'}); }
-      if (pdh_pdl==='between')     { conds.push({t:'Price between PDH & PDL',pts:'0',side:'neut'}); }
-      if (asia_pos==='above_high') { bull+=3; conds.push({t:'Price above Asia High',pts:'+3',side:'bull'}); }
-      if (asia_pos==='below_low')  { bear+=3; conds.push({t:'Price below Asia Low', pts:'+3',side:'bear'}); }
-      if (asia_pos==='inside')     { conds.push({t:'Price inside Asia range',pts:'0',side:'neut'}); }
-      if (liq_seq==='bull')        { bull+=2; conds.push({t:'Bullish Asia liquidity sequence',pts:'+2',side:'bull'}); }
-      if (liq_seq==='bear')        { bear+=2; conds.push({t:'Bearish Asia liquidity sequence',pts:'+2',side:'bear'}); }
-      if (liq_seq==='neut')        { conds.push({t:'Neutral Asia liquidity',pts:'0',side:'neut'}); }
-      if (london_pos==='above_high'){ bull+=2; conds.push({t:'Price above London High',pts:'+2',side:'bull'}); }
-      if (london_pos==='below_low') { bear+=2; conds.push({t:'Price below London Low', pts:'+2',side:'bear'}); }
-      if (london_pos==='inside')   { conds.push({t:'Price inside London range',pts:'0',side:'neut'}); }
+    score(s){
+      let bull=0, bear=0; const conds=[];
+      if(s.pdh_pdl==='above_pdh')  {bull+=3;conds.push({t:'Price above PDH',p:'+3',s:'bull'});}
+      if(s.pdh_pdl==='below_pdl')  {bear+=3;conds.push({t:'Price below PDL',p:'+3',s:'bear'});}
+      if(s.pdh_pdl==='between')    {conds.push({t:'Price between PDH & PDL',p:'0',s:'neut'});}
+      if(s.asia_pos==='above_high'){bull+=3;conds.push({t:'Price above Asia High',p:'+3',s:'bull'});}
+      if(s.asia_pos==='below_low') {bear+=3;conds.push({t:'Price below Asia Low', p:'+3',s:'bear'});}
+      if(s.asia_pos==='inside')    {conds.push({t:'Price inside Asia range',p:'0',s:'neut'});}
+      if(s.liq_seq==='bull')       {bull+=2;conds.push({t:'Bullish Asia liquidity sequence',p:'+2',s:'bull'});}
+      if(s.liq_seq==='bear')       {bear+=2;conds.push({t:'Bearish Asia liquidity sequence',p:'+2',s:'bear'});}
+      if(s.liq_seq==='neut')       {conds.push({t:'Neutral Asia liquidity',p:'0',s:'neut'});}
+      if(s.london_pos==='above_high'){bull+=2;conds.push({t:'Price above London High',p:'+2',s:'bull'});}
+      if(s.london_pos==='below_low') {bear+=2;conds.push({t:'Price below London Low', p:'+2',s:'bear'});}
+      if(s.london_pos==='inside')    {conds.push({t:'Price inside London range',p:'0',s:'neut'});}
       const conflict = bull>0&&bear>0;
-      const dominant = bull>bear?'bull':bear>bull?'bear':'neut';
-      const score = Math.max(bull,bear);
-      let grade;
-      if (conflict && Math.min(bull,bear)>=4) { grade='Avoid'; }
-      else if (score>=8) grade='A+';
-      else if (score>=6) grade='A';
-      else if (score>=4) grade='B';
-      else grade='Avoid';
-      return { grade, dominant, bull, bear, maxBull:10, maxBear:10, conditions:conds, conflict };
+      const dom=bull>bear?'bull':bear>bull?'bear':'neut';
+      const sc=Math.max(bull,bear);
+      let g;
+      if(conflict&&Math.min(bull,bear)>=4) g='Avoid';
+      else if(sc>=8) g='A+';
+      else if(sc>=6) g='A';
+      else if(sc>=4) g='B';
+      else g='Avoid';
+      return {grade:g, dominant:dom, bull, bear, maxBull:10, maxBear:10, conds, conflict};
     },
-    note: 'No A+ bias before 14:30 UK. Score only what is true at 14:30.',
+    showADR:false
   },
 
-  // ─── S&P 500 ──────────────────────────────────────────────
-  sp500: {
-    id: 'sp500', symbol: 'SPX', name: 'S&P 500', sub: 'E-Mini · Signal Alignment Model',
-    color: '#34d399',
-    twoCol: true,
-    col1: ['asia_liq', 'london_orb'],
-    col2: ['pos_1430', 'pos_1530'],
-    params: [
-      { id: 'asia_liq', label: 'Asia Liquidity', time: 'After 08:00 UK',
-        options: [
-          { val: 'high_only', icon: '↑', label: 'Asia High only swept', sub: 'A+ Bull signal',  cls: 'opt-bull' },
-          { val: 'low_only',  icon: '↓', label: 'Asia Low only swept',  sub: 'A+ Bear signal',  cls: 'opt-bear' },
-          { val: 'both',      icon: '✕', label: 'Both sides swept',     sub: 'Avoid — no confidence', cls: 'opt-avoid' },
-        ]},
-      { id: 'london_orb', label: 'London ORB / IB Break', time: '08:00 – 10:00 UK',
-        options: [
-          { val: 'high_only', icon: '↑', label: 'High only broken', sub: 'A+ Bull signal', cls: 'opt-bull' },
-          { val: 'low_only',  icon: '↓', label: 'Low only broken',  sub: 'A+ Bear signal', cls: 'opt-bear' },
-          { val: 'both',      icon: '✕', label: 'Both sides broken', sub: 'Avoid — reduce confidence', cls: 'opt-avoid' },
-        ]},
-      { id: 'pos_1430', label: 'Price Position vs Asia', time: '14:30 UK — Provisional',
-        options: [
-          { val: 'above', icon: '▲', label: 'Above Asia High', sub: 'A Bullish bias', cls: 'opt-bull' },
-          { val: 'inside',icon: '↔', label: 'Inside Asia Range', sub: 'No trade — wait', cls: '' },
-          { val: 'below', icon: '▼', label: 'Below Asia Low',  sub: 'A Bearish bias', cls: 'opt-bear' },
-        ]},
-      { id: 'pos_1530', label: 'Price Position vs Asia', time: '15:30 UK — Final Confirm',
-        options: [
-          { val: 'above', icon: '▲', label: 'Above Asia High', sub: 'A+ Bullish confirm', cls: 'opt-bull' },
-          { val: 'inside',icon: '↔', label: 'Inside Asia Range', sub: 'Avoid — insufficient', cls: 'opt-avoid' },
-          { val: 'below', icon: '▼', label: 'Below Asia Low',  sub: 'A+ Bearish confirm', cls: 'opt-bear' },
-        ]},
+  sp500:{
+    id:'sp500', sym:'SPX', name:'S&P 500', label:'E-Mini', color:'#34d399',
+    col1:['asia_liq','london_orb'], col2:['pos_1430','pos_1530'],
+    note:'Do not force a bias before 14:30. A+ requires all 4 signals aligned in one direction.',
+    params:[
+      {id:'asia_liq', label:'Asia Liquidity', time:'After 08:00 UK',
+       opts:[
+         {v:'high_only',ico:'↑',lbl:'Asia High only swept',  sub:'A+ Bull signal — strongest',cls:'ob'},
+         {v:'low_only', ico:'↓',lbl:'Asia Low only swept',   sub:'A+ Bear signal — strongest',cls:'or'},
+         {v:'both',     ico:'✕',lbl:'Both sides swept',       sub:'Avoid — no confidence',cls:'oa'},
+       ]},
+      {id:'london_orb', label:'London ORB / IB Break', time:'08:00 – 10:00 UK',
+       opts:[
+         {v:'high_only',ico:'↑',lbl:'High only broken',  sub:'A+ Bull signal',cls:'ob'},
+         {v:'low_only', ico:'↓',lbl:'Low only broken',   sub:'A+ Bear signal',cls:'or'},
+         {v:'both',     ico:'✕',lbl:'Both sides broken',  sub:'Avoid — reduce confidence',cls:'oa'},
+       ]},
+      {id:'pos_1430', label:'Price Position vs Asia', time:'14:30 UK — Provisional',
+       opts:[
+         {v:'above',ico:'▲',lbl:'Above Asia High',   sub:'A Bullish bias',cls:'ob'},
+         {v:'inside',ico:'↔',lbl:'Inside Asia Range', sub:'No trade — wait for 15:30',cls:''},
+         {v:'below',ico:'▼',lbl:'Below Asia Low',    sub:'A Bearish bias',cls:'or'},
+       ]},
+      {id:'pos_1530', label:'Price Position vs Asia', time:'15:30 UK — Final Confirm',
+       opts:[
+         {v:'above',ico:'▲',lbl:'Above Asia High',   sub:'A+ Bullish confirm',cls:'ob'},
+         {v:'inside',ico:'↔',lbl:'Inside Asia Range', sub:'Avoid — no bias',cls:'oa'},
+         {v:'below',ico:'▼',lbl:'Below Asia Low',    sub:'A+ Bearish confirm',cls:'or'},
+       ]},
     ],
-    score(s) {
-      const { asia_liq, london_orb, pos_1430, pos_1530 } = s;
-      let bullSig=0,bearSig=0,avoidFlag=false;
-      const conds=[];
-      if (asia_liq==='high_only') { bullSig++; conds.push({t:'Asia High only swept — strongest signal',pts:'Bull ✓',side:'bull'}); }
-      if (asia_liq==='low_only')  { bearSig++; conds.push({t:'Asia Low only swept — strongest signal', pts:'Bear ✓',side:'bear'}); }
-      if (asia_liq==='both')      { avoidFlag=true; conds.push({t:'Both Asia sides swept',pts:'Avoid',side:'avoid'}); }
-      if (london_orb==='high_only') { bullSig++; conds.push({t:'London ORB/IB high only broken',pts:'Bull ✓',side:'bull'}); }
-      if (london_orb==='low_only')  { bearSig++; conds.push({t:'London ORB/IB low only broken', pts:'Bear ✓',side:'bear'}); }
-      if (london_orb==='both')      { avoidFlag=true; conds.push({t:'Both London ORB sides broken',pts:'Avoid',side:'avoid'}); }
-      if (pos_1430==='above')  { bullSig++; conds.push({t:'14:30 — above Asia High',pts:'Bull ✓',side:'bull'}); }
-      if (pos_1430==='below')  { bearSig++; conds.push({t:'14:30 — below Asia Low', pts:'Bear ✓',side:'bear'}); }
-      if (pos_1430==='inside') { conds.push({t:'14:30 — inside Asia range',pts:'Neutral',side:'neut'}); }
-      if (pos_1530==='above')  { bullSig++; conds.push({t:'15:30 — above Asia High (strongest confirm)',pts:'Bull ✓',side:'bull'}); }
-      if (pos_1530==='below')  { bearSig++; conds.push({t:'15:30 — below Asia Low (strongest confirm)', pts:'Bear ✓',side:'bear'}); }
-      if (pos_1530==='inside') { avoidFlag=true; conds.push({t:'15:30 — inside Asia range',pts:'Avoid',side:'avoid'}); }
-      const dominant = bullSig>bearSig?'bull':bearSig>bullSig?'bear':'neut';
-      const sig = Math.max(bullSig,bearSig);
-      let grade;
-      if (avoidFlag) grade='Avoid';
-      else if (bullSig>0&&bearSig>0) grade='Avoid';
-      else if (sig===4) grade='A+';
-      else if (sig===3) grade='A';
-      else if (sig===2) grade='B';
-      else grade='Avoid';
-      return { grade, dominant, bullSig, bearSig, conditions:conds, avoidFlag, signalMode:true };
+    score(s){
+      let bS=0, rS=0, avoid=false; const conds=[];
+      if(s.asia_liq==='high_only'){bS++;conds.push({t:'Asia High only swept (strongest signal)',p:'Bull ✓',s:'bull'});}
+      if(s.asia_liq==='low_only') {rS++;conds.push({t:'Asia Low only swept (strongest signal)', p:'Bear ✓',s:'bear'});}
+      if(s.asia_liq==='both')     {avoid=true;conds.push({t:'Both Asia sides swept',p:'⛔ Avoid',s:'avoid'});}
+      if(s.london_orb==='high_only'){bS++;conds.push({t:'London ORB/IB high only broken',p:'Bull ✓',s:'bull'});}
+      if(s.london_orb==='low_only') {rS++;conds.push({t:'London ORB/IB low only broken', p:'Bear ✓',s:'bear'});}
+      if(s.london_orb==='both')     {avoid=true;conds.push({t:'Both London ORB sides broken',p:'⛔ Avoid',s:'avoid'});}
+      if(s.pos_1430==='above') {bS++;conds.push({t:'14:30 — above Asia High',p:'Bull ✓',s:'bull'});}
+      if(s.pos_1430==='below') {rS++;conds.push({t:'14:30 — below Asia Low', p:'Bear ✓',s:'bear'});}
+      if(s.pos_1430==='inside'){conds.push({t:'14:30 — inside Asia range',p:'Neutral',s:'neut'});}
+      if(s.pos_1530==='above') {bS++;conds.push({t:'15:30 — above Asia High (key confirm)',p:'Bull ✓',s:'bull'});}
+      if(s.pos_1530==='below') {rS++;conds.push({t:'15:30 — below Asia Low (key confirm)', p:'Bear ✓',s:'bear'});}
+      if(s.pos_1530==='inside'){avoid=true;conds.push({t:'15:30 — inside Asia range',p:'⛔ Avoid',s:'avoid'});}
+      const mixed=bS>0&&rS>0;
+      const dom=bS>rS?'bull':rS>bS?'bear':'neut';
+      const sig=Math.max(bS,rS);
+      let g;
+      if(avoid||mixed) g='Avoid';
+      else if(sig===4) g='A+';
+      else if(sig===3) g='A';
+      else if(sig===2) g='B';
+      else g='Avoid';
+      return {grade:g,dominant:dom,bullSig:bS,bearSig:rS,conds,avoid,signalMode:true,total:4};
     },
-    note: 'Do not force a bias before 14:30. A+ requires all 4 signals in the same direction.',
+    showADR:false
   },
 
-  // ─── GER40 ────────────────────────────────────────────────
-  ger40: {
-    id: 'ger40', symbol: 'GER40', name: 'GER40', sub: 'DAX · 10:00 UK Decision Model',
-    color: '#c084fc',
-    twoCol: true,
-    col1: ['pdh_pdl', 'asia_range', 'pos_1000'],
-    col2: ['london_dir', 'orb_filter'],
-    params: [
-      { id: 'pdh_pdl', label: 'PDH / PDL Status', time: 'M15 close check',
-        options: [
-          { val: 'above_pdh', icon: '▲', label: 'Closed above PDH',    sub: 'PDL not taken — Bull ✓', cls: 'opt-bull' },
-          { val: 'below_pdl', icon: '▼', label: 'Closed below PDL',    sub: 'PDH not taken — Bear ✓', cls: 'opt-bear' },
-          { val: 'both',      icon: '✕', label: 'Both PDH & PDL taken',sub: 'Avoid', cls: 'opt-avoid' },
-          { val: 'neither',   icon: '↔', label: 'Neither taken',        sub: 'Neutral / no signal', cls: '' },
-        ]},
-      { id: 'asia_range', label: 'Asia Range (Strongest Layer)', time: 'M15 close check',
-        options: [
-          { val: 'above_high', icon: '↑', label: 'M15 closed above Asia High', sub: 'Asia Low not taken — Bull ✓', cls: 'opt-bull' },
-          { val: 'below_low',  icon: '↓', label: 'M15 closed below Asia Low',  sub: 'Asia High not taken — Bear ✓', cls: 'opt-bear' },
-          { val: 'both',       icon: '✕', label: 'Both Asia sides taken',        sub: 'Avoid', cls: 'opt-avoid' },
-        ]},
-      { id: 'pos_1000', label: 'Price Position at 10:00', time: '10:00 UK',
-        options: [
-          { val: 'above_high', icon: '▲', label: 'Above Asia High',     sub: 'Bullish ✓', cls: 'opt-bull' },
-          { val: 'below_low',  icon: '▼', label: 'Below Asia Low',      sub: 'Bearish ✓', cls: 'opt-bear' },
-          { val: 'inside',     icon: '↔', label: 'Inside Asia range',   sub: 'Avoid', cls: 'opt-avoid' },
-          { val: 'middle',     icon: '—', label: 'Middle of Asia range', sub: 'Strong avoid', cls: 'opt-avoid' },
-        ]},
-      { id: 'london_dir', label: 'London Direction (08:00–10:00)', time: '08:00–10:00 UK',
-        options: [
-          { val: 'bull', icon: '▲', label: 'Bullish + above Asia High', sub: 'Confirms bull ✓', cls: 'opt-bull' },
-          { val: 'bear', icon: '▼', label: 'Bearish + below Asia Low',  sub: 'Confirms bear ✓', cls: 'opt-bear' },
-          { val: 'conflict', icon: '✕', label: 'Direction conflicts Asia', sub: 'Reduce quality or avoid', cls: 'opt-avoid' },
-        ]},
-      { id: 'orb_filter', label: 'ORB / IB Filter', time: '08:00–09:00 UK',
-        options: [
-          { val: 'high_only', icon: '↑', label: 'ORB High broken (not low)', sub: 'Bull confirmation ✓', cls: 'opt-bull' },
-          { val: 'low_only',  icon: '↓', label: 'ORB Low broken (not high)', sub: 'Bear confirmation ✓', cls: 'opt-bear' },
-          { val: 'both',      icon: '✕', label: 'Both ORB sides broken',      sub: 'Avoid', cls: 'opt-avoid' },
-        ]},
+  ger40:{
+    id:'ger40', sym:'GER40', name:'GER40', label:'DAX', color:'#c084fc',
+    col1:['pdh_pdl','asia_range','pos_1000'], col2:['london_dir','orb_filter'],
+    note:'Final bias at 10:00 UK. A+ requires all 5 checks confirmed in one direction.',
+    params:[
+      {id:'pdh_pdl', label:'PDH / PDL Status', time:'M15 close check',
+       opts:[
+         {v:'above_pdh',ico:'▲',lbl:'Closed above PDH',     sub:'PDL not taken — Bull ✓',cls:'ob'},
+         {v:'below_pdl',ico:'▼',lbl:'Closed below PDL',     sub:'PDH not taken — Bear ✓',cls:'or'},
+         {v:'both',     ico:'✕',lbl:'Both PDH & PDL swept',  sub:'Avoid',cls:'oa'},
+         {v:'neither',  ico:'↔',lbl:'Neither taken',          sub:'Neutral / no signal',cls:''},
+       ]},
+      {id:'asia_range', label:'Asia Range — Strongest Layer', time:'M15 close check',
+       opts:[
+         {v:'above_high',ico:'↑',lbl:'M15 closed above Asia High',sub:'Asia Low intact — Bull ✓',cls:'ob'},
+         {v:'below_low', ico:'↓',lbl:'M15 closed below Asia Low', sub:'Asia High intact — Bear ✓',cls:'or'},
+         {v:'both',      ico:'✕',lbl:'Both Asia sides taken',       sub:'Avoid',cls:'oa'},
+       ]},
+      {id:'pos_1000', label:'Price Position at 10:00 UK', time:'10:00 UK — Decision time',
+       opts:[
+         {v:'above_high',ico:'▲',lbl:'Above Asia High',      sub:'Bullish ✓',cls:'ob'},
+         {v:'below_low', ico:'▼',lbl:'Below Asia Low',       sub:'Bearish ✓',cls:'or'},
+         {v:'inside',    ico:'↔',lbl:'Inside Asia range',    sub:'Avoid',cls:'oa'},
+         {v:'middle',    ico:'—',lbl:'Middle of Asia range', sub:'Strong avoid',cls:'oa'},
+       ]},
+      {id:'london_dir', label:'London Direction (08:00 – 10:00)', time:'08:00 – 10:00 UK',
+       opts:[
+         {v:'bull',    ico:'▲',lbl:'Bullish + above Asia High',    sub:'Confirms bull ✓',cls:'ob'},
+         {v:'bear',    ico:'▼',lbl:'Bearish + below Asia Low',     sub:'Confirms bear ✓',cls:'or'},
+         {v:'conflict',ico:'✕',lbl:'Direction conflicts Asia pos.', sub:'Reduce quality or avoid',cls:'oa'},
+       ]},
+      {id:'orb_filter', label:'ORB / IB Filter', time:'08:00 – 09:00 UK',
+       opts:[
+         {v:'high_only',ico:'↑',lbl:'ORB High broken (not low)', sub:'Bull confirm ✓',cls:'ob'},
+         {v:'low_only', ico:'↓',lbl:'ORB Low broken (not high)', sub:'Bear confirm ✓',cls:'or'},
+         {v:'both',     ico:'✕',lbl:'Both ORB sides broken',      sub:'Avoid',cls:'oa'},
+       ]},
     ],
-    score(s) {
-      const { pdh_pdl, asia_range, pos_1000, london_dir, orb_filter } = s;
-      let bullChecks=0,bearChecks=0,avoidFlag=false;
-      const conds=[];
-      // PDH/PDL
-      if (pdh_pdl==='above_pdh') { bullChecks++; conds.push({t:'M15 closed above PDH (PDL intact)',pts:'Bull ✓',side:'bull'}); }
-      else if (pdh_pdl==='below_pdl') { bearChecks++; conds.push({t:'M15 closed below PDL (PDH intact)',pts:'Bear ✓',side:'bear'}); }
-      else if (pdh_pdl==='both') { avoidFlag=true; conds.push({t:'Both PDH & PDL taken',pts:'Avoid',side:'avoid'}); }
-      else { conds.push({t:'Neither PDH nor PDL taken',pts:'Neutral',side:'neut'}); }
-      // Asia range
-      if (asia_range==='above_high') { bullChecks++; conds.push({t:'M15 closed above Asia High (strongest layer)',pts:'Bull ✓',side:'bull'}); }
-      else if (asia_range==='below_low') { bearChecks++; conds.push({t:'M15 closed below Asia Low (strongest layer)',pts:'Bear ✓',side:'bear'}); }
-      else { avoidFlag=true; conds.push({t:'Both Asia sides taken',pts:'Avoid',side:'avoid'}); }
-      // 10:00 position
-      if (pos_1000==='above_high') { bullChecks++; conds.push({t:'Price above Asia High at 10:00',pts:'Bull ✓',side:'bull'}); }
-      else if (pos_1000==='below_low') { bearChecks++; conds.push({t:'Price below Asia Low at 10:00',pts:'Bear ✓',side:'bear'}); }
-      else { avoidFlag=true; conds.push({t:'Price inside Asia range at 10:00',pts:'Avoid',side:'avoid'}); }
-      // London direction
-      if (london_dir==='bull') { bullChecks++; conds.push({t:'London direction bullish + above Asia High',pts:'Bull ✓',side:'bull'}); }
-      else if (london_dir==='bear') { bearChecks++; conds.push({t:'London direction bearish + below Asia Low',pts:'Bear ✓',side:'bear'}); }
-      else { avoidFlag=true; conds.push({t:'London direction conflicts Asia position',pts:'Avoid',side:'avoid'}); }
-      // ORB filter
-      if (orb_filter==='high_only') { bullChecks++; conds.push({t:'ORB high only broken (low intact)',pts:'Bull ✓',side:'bull'}); }
-      else if (orb_filter==='low_only') { bearChecks++; conds.push({t:'ORB low only broken (high intact)',pts:'Bear ✓',side:'bear'}); }
-      else { avoidFlag=true; conds.push({t:'Both ORB sides broken',pts:'Avoid',side:'avoid'}); }
-      const dominant = bullChecks>bearChecks?'bull':bearChecks>bullChecks?'bear':'neut';
-      const checks = Math.max(bullChecks,bearChecks);
-      const mixed = bullChecks>0&&bearChecks>0;
-      let grade;
-      if (avoidFlag||mixed) grade='Avoid';
-      else if (checks===5) grade='A+';
-      else if (checks===4) grade='A';
-      else if (checks===3) grade='B';
-      else grade='Avoid';
-      return { grade, dominant, bullChecks, bearChecks, conditions:conds, avoidFlag, signalMode:true };
+    score(s){
+      let bC=0, rC=0, avoid=false; const conds=[];
+      if(s.pdh_pdl==='above_pdh'){bC++;conds.push({t:'Closed above PDH (PDL intact)',p:'Bull ✓',s:'bull'});}
+      else if(s.pdh_pdl==='below_pdl'){rC++;conds.push({t:'Closed below PDL (PDH intact)',p:'Bear ✓',s:'bear'});}
+      else if(s.pdh_pdl==='both'){avoid=true;conds.push({t:'Both PDH & PDL swept',p:'⛔ Avoid',s:'avoid'});}
+      else{conds.push({t:'Neither PDH nor PDL taken',p:'Neutral',s:'neut'});}
+      if(s.asia_range==='above_high'){bC++;conds.push({t:'M15 closed above Asia High (strongest)',p:'Bull ✓',s:'bull'});}
+      else if(s.asia_range==='below_low'){rC++;conds.push({t:'M15 closed below Asia Low (strongest)',p:'Bear ✓',s:'bear'});}
+      else{avoid=true;conds.push({t:'Both Asia sides taken',p:'⛔ Avoid',s:'avoid'});}
+      if(s.pos_1000==='above_high'){bC++;conds.push({t:'Price above Asia High at 10:00',p:'Bull ✓',s:'bull'});}
+      else if(s.pos_1000==='below_low'){rC++;conds.push({t:'Price below Asia Low at 10:00',p:'Bear ✓',s:'bear'});}
+      else{avoid=true;conds.push({t:'Price inside / middle Asia range at 10:00',p:'⛔ Avoid',s:'avoid'});}
+      if(s.london_dir==='bull'){bC++;conds.push({t:'London bullish direction + above Asia High',p:'Bull ✓',s:'bull'});}
+      else if(s.london_dir==='bear'){rC++;conds.push({t:'London bearish direction + below Asia Low',p:'Bear ✓',s:'bear'});}
+      else{avoid=true;conds.push({t:'London direction conflicts Asia position',p:'⛔ Avoid',s:'avoid'});}
+      if(s.orb_filter==='high_only'){bC++;conds.push({t:'ORB high only broken (low intact)',p:'Bull ✓',s:'bull'});}
+      else if(s.orb_filter==='low_only'){rC++;conds.push({t:'ORB low only broken (high intact)',p:'Bear ✓',s:'bear'});}
+      else{avoid=true;conds.push({t:'Both ORB sides broken',p:'⛔ Avoid',s:'avoid'});}
+      const mixed=bC>0&&rC>0;
+      const dom=bC>rC?'bull':rC>bC?'bear':'neut';
+      const checks=Math.max(bC,rC);
+      let g;
+      if(avoid||mixed) g='Avoid';
+      else if(checks===5) g='A+';
+      else if(checks===4) g='A';
+      else if(checks===3) g='B';
+      else g='Avoid';
+      return {grade:g,dominant:dom,bullChecks:bC,bearChecks:rC,conds,avoid,signalMode:true,total:5};
     },
-    note: 'Final bias at 10:00 UK. A+ requires all 5 checks confirmed in one direction.',
-  },
+    showADR:false
+  }
 };
 
-// ══════════════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════════════
-let activeAsset = 'xauusd';
-const selections = { xauusd:{}, us30:{}, sp500:{}, ger40:{} };
+// ═══════════════ STATE ═══════════════
+let active = 'xauusd';
+const sel = {xauusd:{}, us30:{}, sp500:{}, ger40:{}};
 
-// ══════════════════════════════════════════════════════════════
-// TABS
-// ══════════════════════════════════════════════════════════════
-function buildTabs() {
-  const container = document.getElementById('assetTabs');
+// ═══════════════ TABS ═══════════════
+function buildTabs(){
+  const c = document.getElementById('tabs');
+  c.innerHTML = '';
   Object.values(ASSETS).forEach(a => {
-    const tab = document.createElement('div');
-    tab.className = 'asset-tab' + (a.id===activeAsset?' active':'');
-    tab.style.setProperty('--ac', a.color);
-    tab.innerHTML = `<div class="at-sym">${a.symbol}</div><div class="at-name">${a.sub.split(' · ')[0]}</div><div class="at-pip"></div>`;
-    tab.onclick = () => switchAsset(a.id);
-    container.appendChild(tab);
+    const t = document.createElement('div');
+    t.className = 'tab' + (a.id===active?' active':'');
+    t.innerHTML = `<div class="tsym" style="color:${a.id===active?a.color:'var(--muted)'}">${a.sym}</div><div class="tname">${a.label}</div><div class="tbar" style="background:${a.color}"></div>`;
+    t.onclick = () => switchAsset(a.id);
+    c.appendChild(t);
   });
 }
 
-function switchAsset(id) {
-  activeAsset = id;
-  document.querySelectorAll('.asset-tab').forEach((t,i) => {
-    const a = Object.values(ASSETS)[i];
-    t.classList.toggle('active', a.id===id);
-    t.style.setProperty('--ac', a.color);
-  });
+function switchAsset(id){
+  active = id;
   const a = ASSETS[id];
   document.documentElement.style.setProperty('--ac', a.color);
-  document.getElementById('headerTitle').textContent = a.name + ' — Morning Bias';
+  document.getElementById('hdrTitle').textContent = a.name + ' — Morning Bias';
+  buildTabs();
   renderParams();
   renderResults();
 }
 
-// ══════════════════════════════════════════════════════════════
-// PARAMS RENDER
-// ══════════════════════════════════════════════════════════════
-function renderParams() {
-  const a = ASSETS[activeAsset];
+// ═══════════════ PARAMS ═══════════════
+function renderParams(){
+  const a = ASSETS[active];
   const allParams = a.params;
-  const grid = document.getElementById('mainGrid');
+  const col1 = a.col1 ? allParams.filter(p=>a.col1.includes(p.id)) : allParams;
+  const col2 = a.col2 ? allParams.filter(p=>a.col2.includes(p.id)) : [];
 
-  // Figure out split
-  let col1Params, col2Params;
-  if (a.twoCol && a.col1 && a.col2) {
-    col1Params = allParams.filter(p => a.col1.includes(p.id));
-    col2Params = allParams.filter(p => a.col2.includes(p.id));
-  } else {
-    col1Params = allParams; col2Params = [];
-  }
+  const grid = document.getElementById('grid');
+  const p2 = document.getElementById('pane2');
+  const rp = document.getElementById('resPaneEl');
 
   // Pane 1
-  const p1 = document.getElementById('paramPane');
-  const p2 = document.getElementById('paramPane2');
-  document.getElementById('paneTitle').innerHTML = `<span style="color:var(--ac)">●</span>&nbsp;${a.name} — Session Inputs`;
-  document.getElementById('paramBody').innerHTML = '';
-  col1Params.forEach(param => buildParamGroup(param, document.getElementById('paramBody')));
+  document.getElementById('phd1').innerHTML = `<span style="background:${a.color}" class="pane-hd-dot"></span>${a.name} — Session Inputs`;
+  document.getElementById('pbody1').innerHTML = '';
+  if(a.note){
+    const nb = document.createElement('div');
+    nb.className = 'note-banner';
+    nb.textContent = a.note;
+    document.getElementById('pbody1').appendChild(nb);
+  }
+  col1.forEach(p => buildParamGroup(p, document.getElementById('pbody1')));
 
-  if (col2Params.length > 0) {
+  // Pane 2
+  if(col2.length){
     p2.style.display = '';
-    document.getElementById('paneTitle2').innerHTML = `<span style="color:var(--ac)">●</span>&nbsp;${a.name} — Position & Confirm`;
-    document.getElementById('paramBody2').innerHTML = '';
-    col2Params.forEach(param => buildParamGroup(param, document.getElementById('paramBody2')));
-    grid.style.gridTemplateColumns = 'repeat(auto-fit,minmax(280px,1fr))';
+    document.getElementById('phd2').innerHTML = `<span style="background:${a.color}" class="pane-hd-dot"></span>${a.name} — Position & Confirm`;
+    document.getElementById('pbody2').innerHTML = '';
+    col2.forEach(p => buildParamGroup(p, document.getElementById('pbody2')));
+    // Results spans full width on large screen
+    grid.style.gridTemplateColumns = '';
+    rp.style.gridColumn = '';
+    grid.className = 'grid';
   } else {
     p2.style.display = 'none';
-    grid.style.gridTemplateColumns = '1fr';
+    grid.className = 'grid single';
   }
 }
 
-function buildParamGroup(param, container) {
-  const grp = document.createElement('div');
-  grp.className = 'param-group';
-  grp.innerHTML = `<div class="param-label">${param.label}${param.time?`<span class="param-time">${param.time}</span>`:''}</div>`;
-  const grid = document.createElement('div');
-  grid.className = 'opt-grid';
-  param.options.forEach(opt => {
+function buildParamGroup(param, container){
+  const div = document.createElement('div');
+  div.className = 'pg';
+  div.innerHTML = `<div class="pg-label">${param.label}${param.time?`<span class="pg-time">${param.time}</span>`:''}</div>`;
+  const list = document.createElement('div');
+  list.className = 'opt-list';
+  param.opts.forEach(opt => {
     const btn = document.createElement('button');
-    btn.className = 'opt-btn' + (opt.cls?' '+opt.cls:'');
-    if (selections[activeAsset][param.id] === opt.val) btn.classList.add('active');
-    btn.innerHTML = `<span class="ob-icon">${opt.icon||'·'}</span><span><span>${opt.label}</span>${opt.sub?`<span class="ob-sub">${opt.sub}</span>`:''}</span>`;
-    btn.onclick = () => { select(param.id, opt.val); };
-    grid.appendChild(btn);
+    btn.className = 'opt' + (opt.cls?' '+opt.cls:'');
+    if(sel[active][param.id]===opt.v) btn.classList.add('active');
+    btn.innerHTML = `<span class="ico">${opt.ico||'·'}</span><span><span>${opt.lbl}</span>${opt.sub?`<span class="sub">${opt.sub}</span>`:''}</span>`;
+    btn.onclick = () => { sel[active][param.id]=opt.v; renderParams(); renderResults(); };
+    list.appendChild(btn);
   });
-  grp.appendChild(grid);
-  container.appendChild(grp);
+  div.appendChild(list);
+  container.appendChild(div);
 }
 
-function select(paramId, val) {
-  selections[activeAsset][paramId] = val;
-  // Re-render buttons for this param
-  const a = ASSETS[activeAsset];
-  const param = a.params.find(p => p.id===paramId);
-  document.querySelectorAll('[data-param="'+paramId+'"]').forEach(b => b.classList.remove('active'));
-  // Simpler: just re-render params
-  renderParams();
-  renderResults();
-}
-
-// Override buildParamGroup to use data attr
-function buildParamGroup(param, container) {
-  const grp = document.createElement('div');
-  grp.className = 'param-group';
-  grp.innerHTML = `<div class="param-label">${param.label}${param.time?`<span class="param-time">${param.time}</span>`:''}</div>`;
-  const grid = document.createElement('div');
-  grid.className = 'opt-grid';
-  param.options.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'opt-btn' + (opt.cls?' '+opt.cls:'');
-    btn.setAttribute('data-param', param.id);
-    if (selections[activeAsset][param.id] === opt.val) btn.classList.add('active');
-    btn.innerHTML = `<span class="ob-icon">${opt.icon||'·'}</span><span><span>${opt.label}</span>${opt.sub?`<span class="ob-sub">${opt.sub}</span>`:''}</span>`;
-    btn.onclick = () => {
-      selections[activeAsset][param.id] = opt.val;
-      renderParams(); renderResults();
-    };
-    grid.appendChild(btn);
-  });
-  grp.appendChild(grid);
-  container.appendChild(grp);
-}
-
-// ══════════════════════════════════════════════════════════════
-// RESULTS RENDER
-// ══════════════════════════════════════════════════════════════
-function renderResults() {
-  const a = ASSETS[activeAsset];
-  const s = selections[activeAsset];
-  const rp = document.getElementById('resultsPane');
-
+// ═══════════════ RESULTS ═══════════════
+function renderResults(){
+  const a = ASSETS[active];
+  const s = sel[active];
+  const rp = document.getElementById('resPaneEl');
   const needed = a.params.map(p=>p.id);
-  const filled = needed.filter(id => s[id] !== undefined);
-  const remaining = needed.filter(id => !s[id]);
+  const missing = needed.filter(id=>s[id]===undefined);
 
-  if (filled.length < needed.length) {
-    rp.innerHTML = `
-      <div class="prompt-state">
-        <div class="prompt-icon">⚡</div>
-        <p><strong>Select all ${needed.length} conditions</strong><br>
-        Still needed: ${remaining.map(id=>a.params.find(p=>p.id===id).label).join(', ')}</p>
-      </div>`;
+  if(missing.length){
+    const labels = missing.map(id=>a.params.find(p=>p.id===id).label).join(', ');
+    rp.innerHTML = `<div class="prompt"><div class="prompt-ico">⚡</div><p><b>Still needed (${missing.length})</b><br>${labels}</p></div>`;
     return;
   }
 
-  const res = a.score(s);
-  rp.innerHTML = '';
-  const card = document.createElement('div');
-  card.className = 'result-card';
-
-  // ── Tags row ──
-  const tags = needed.map(id => {
-    const param = a.params.find(p=>p.id===id);
-    const opt = param.options.find(o=>o.val===s[id]);
-    const side = opt.cls||'';
-    const cls = side.includes('bull')?'rtag" style="background:var(--bull-light);border-color:var(--bull);color:var(--bull)'
-               :side.includes('bear')?'rtag" style="background:var(--bear-light);border-color:var(--bear);color:var(--bear)'
-               :side.includes('avoid')?'rtag" style="background:var(--avoid-light);border-color:var(--avoid);color:var(--avoid)'
-               :'rtag" style="background:var(--card);border-color:var(--border);color:var(--muted)';
-    return `<span class="${cls}">${opt.icon} ${opt.label}</span>`;
-  }).join('');
-  card.innerHTML += `<div style="margin-bottom:14px"><div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Today's Conditions</div><div class="result-tags">${tags}</div></div>`;
-
-  // ── Grade + Score ──
-  const gradeClass = {A+:'grade-aplus',A:'grade-a',B:'grade-b',Avoid:'grade-avoid'}[res.grade]||'grade-avoid';
-  const verdictClass = res.grade==='Avoid'?'v-avoid':res.dominant==='bull'?'v-bull':res.dominant==='bear'?'v-bear':'v-neut';
-  const verdictIcon  = res.grade==='Avoid'?'⛔':res.dominant==='bull'?'📈':res.dominant==='bear'?'📉':'↔️';
-  const biasLabel    = res.grade==='Avoid'?'Avoid — No Clean Bias':res.dominant==='bull'?`${res.grade} Bullish Bias`:res.dominant==='bear'?`${res.grade} Bearish Bias`:'No Clear Direction';
+  const r = a.score(s);
+  const gradeClass = {'A+':'gaplus','A':'ga','B':'gb','Avoid':'gavoid'}[r.grade]||'gavoid';
+  const dom = r.dominant;
+  const isAvoid = r.grade==='Avoid';
+  const vClass = isAvoid?'va':dom==='bull'?'vb':dom==='bear'?'vr':'vn';
+  const vIco   = isAvoid?'⛔':dom==='bull'?'📈':dom==='bear'?'📉':'↔️';
+  const vColor  = isAvoid?'var(--avoid)':dom==='bull'?'var(--bull)':dom==='bear'?'var(--bear)':'var(--muted)';
+  const biasLabel = isAvoid?'Avoid — No Clean Bias':dom==='bull'?`${r.grade} Bullish Bias`:dom==='bear'?`${r.grade} Bearish Bias`:'No Clear Direction';
 
   // Confidence note
-  let confNote = '';
-  if (!res.signalMode) {
-    const edge = Math.abs((res.bull||0)-(res.bear||0));
-    confNote = edge>=4?'Strong directional edge':edge>=2?'Moderate lean':'Near coin-flip — low edge';
+  let confNote;
+  if(!r.signalMode){
+    const edge=Math.abs((r.bull||0)-(r.bear||0));
+    confNote=edge>=5?'Strong directional edge':edge>=2?'Moderate lean — be selective':'Low edge — near coin flip';
   } else {
-    const sig = Math.max(res.bullSig||res.bullChecks||0, res.bearSig||res.bearChecks||0);
-    const total = needed.length;
-    confNote = sig===total?`All ${total} signals aligned`:sig>=total-1?`${sig}/${total} signals aligned`:`${sig}/${total} signals — mixed`;
+    const sig=Math.max(r.bullSig||r.bullChecks||0,r.bearSig||r.bearChecks||0);
+    const tot=r.total||needed.length;
+    confNote=`${sig}/${tot} signals aligned${isAvoid?' — conflict or avoid trigger':sig===tot?' — full conviction':''}`;
   }
 
-  // Score bars
-  let scoreHTML = '';
-  if (!res.signalMode) {
-    const bullW = Math.round((res.bull/res.maxBull)*100);
-    const bearW = Math.round((res.bear/res.maxBear)*100);
-    scoreHTML = `
-      <div class="score-section">
-        <div class="score-label">Score (max ${res.maxBull} pts each direction)</div>
-        <div class="score-bars">
-          <div class="sbar-row">
-            <span class="sbar-name" style="color:var(--bull)">Bull</span>
-            <div class="sbar-track"><div class="sbar-fill sfill-bull" style="width:${bullW}%"></div></div>
-            <span class="sbar-val" style="color:var(--bull)">${res.bull}/${res.maxBull}</span>
-          </div>
-          <div class="sbar-row">
-            <span class="sbar-name" style="color:var(--bear)">Bear</span>
-            <div class="sbar-track"><div class="sbar-fill sfill-bear" style="width:${bearW}%"></div></div>
-            <span class="sbar-val" style="color:var(--bear)">${res.bear}/${res.maxBear}</span>
-          </div>
-        </div>
-      </div>`;
+  // Tags
+  const tags = needed.map(id=>{
+    const param=a.params.find(p=>p.id===id);
+    const opt=param.opts.find(o=>o.v===s[id]);
+    const tc=opt.cls==='ob'?'stag-bull':opt.cls==='or'?'stag-bear':opt.cls==='oa'?'stag-avoid':'stag-neut';
+    return `<span class="stag ${tc}">${opt.ico} ${opt.lbl}</span>`;
+  }).join('');
+
+  // Score / signal visual
+  let scoreHTML='';
+  if(!r.signalMode){
+    const bW=Math.min(100,Math.round((r.bull/r.maxBull)*100));
+    const rW=Math.min(100,Math.round((r.bear/r.maxBear)*100));
+    scoreHTML=`<div class="score-sec">
+      <div class="sec-lbl">Score (max ${r.maxBull} pts each direction)</div>
+      <div class="sbar-row">
+        <span class="sbar-nm" style="color:var(--bull)">Bull</span>
+        <div class="sbar-track"><div class="sbar-fill sf-bull" style="width:${bW}%"></div></div>
+        <span class="sbar-val" style="color:var(--bull)">${r.bull}/${r.maxBull}</span>
+      </div>
+      <div class="sbar-row">
+        <span class="sbar-nm" style="color:var(--bear)">Bear</span>
+        <div class="sbar-track"><div class="sbar-fill sf-bear" style="width:${rW}%"></div></div>
+        <span class="sbar-val" style="color:var(--bear)">${r.bear}/${r.maxBear}</span>
+      </div>
+    </div>`;
   } else {
-    const bull = res.bullSig !== undefined ? res.bullSig : res.bullChecks;
-    const bear = res.bearSig !== undefined ? res.bearSig : res.bearChecks;
-    const total = needed.length;
-    let pills = '';
-    for (let i=0;i<total;i++) pills += `<div class="sig-pill ${i<bull&&res.dominant==='bull'?'sig-bull':i<bear&&res.dominant==='bear'?'sig-bear':'sig-neut'}">${i<bull&&res.dominant==='bull'?'● Bull':i<bear&&res.dominant==='bear'?'● Bear':'○'}</div>`;
-    scoreHTML = `<div style="margin-bottom:16px"><div class="score-label" style="margin-bottom:8px">Signal alignment (${Math.max(bull,bear)}/${total})</div><div class="signals-row">${pills}</div></div>`;
+    const bS=r.bullSig!==undefined?r.bullSig:r.bullChecks||0;
+    const rS=r.bearSig!==undefined?r.bearSig:r.bearChecks||0;
+    const tot=r.total||needed.length;
+    let pills='';
+    for(let i=0;i<tot;i++){
+      if(i<bS&&dom==='bull') pills+=`<div class="spill spill-bull">● Bull</div>`;
+      else if(i<rS&&dom==='bear') pills+=`<div class="spill spill-bear">● Bear</div>`;
+      else pills+=`<div class="spill spill-neut">○</div>`;
+    }
+    scoreHTML=`<div style="margin-bottom:14px"><div class="sec-lbl" style="margin-bottom:7px">Signal alignment (${Math.max(bS,rS)}/${tot})</div><div class="sig-row">${pills}</div></div>`;
   }
 
   // Conditions
-  const condHTML = res.conditions.map(c => `
+  const condHTML=r.conds.map(c=>`
     <div class="cond-item">
-      <div class="ci-dot" style="background:${c.side==='bull'?'var(--bull)':c.side==='bear'?'var(--bear)':c.side==='avoid'?'var(--avoid)':'var(--muted)'}"></div>
-      <div class="ci-text ci-${c.side}">${c.t}${c.note?` <span style="font-size:.65rem;opacity:.7">(${c.note})</span>`:''}</div>
-      <span class="ci-pts ci-pts-${c.side}">${c.pts}</span>
+      <div class="ci-dot" style="background:${c.s==='bull'?'var(--bull)':c.s==='bear'?'var(--bear)':c.s==='avoid'?'var(--avoid)':'var(--muted)'}"></div>
+      <div class="ci-txt ci-${c.s}">${c.t}${c.n?` <span style="font-size:.63rem;opacity:.65">(${c.n})</span>`:''}</div>
+      <span class="ci-pts ci-pts-${c.s}">${c.p}</span>
     </div>`).join('');
 
-  card.innerHTML += `
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap">
-      <div style="flex:1">
-        <div class="verdict ${verdictClass}">
-          <div class="v-icon">${verdictIcon}</div>
-          <div class="v-body">
-            <div class="v-lbl">Statistical Bias</div>
-            <div class="v-title" style="color:${res.grade==='Avoid'?'var(--avoid)':res.dominant==='bull'?'var(--bull)':res.dominant==='bear'?'var(--bear)':'var(--muted)'}">${biasLabel}</div>
-            <div class="v-sub">${confNote}</div>
-          </div>
+  // Conflict note for US30
+  const conflictHTML = r.conflict?`<div style="background:var(--avoid-bg);border:1px solid rgba(249,115,22,.3);border-radius:8px;padding:8px 12px;font-size:.75rem;color:var(--avoid);margin-bottom:12px">⚠️ Mixed signals — both bull and bear points are scoring. Review your inputs.</div>`:'';
+
+  // ADR
+  const adrHTML = a.showADR?`
+    <div class="adr">
+      <div class="adr-hd">⚡ ADR Filter — Daily Range Check</div>
+      <div class="adr-in">
+        <div class="adr-field"><label>ADR ($)</label><input type="number" id="aIn" placeholder="100" oninput="calcADR()"></div>
+        <div class="adr-field"><label>Today's High</label><input type="number" id="aHi" placeholder="3400" oninput="calcADR()"></div>
+        <div class="adr-field"><label>Today's Low</label><input type="number" id="aLo" placeholder="3350" oninput="calcADR()"></div>
+      </div>
+      <div class="adr-out" id="adrOut" style="display:none">
+        <div class="adr-stat"><div class="adr-v" id="adrCur">—</div><div class="adr-l">Current Range</div></div>
+        <div class="adr-stat"><div class="adr-v" id="adrRem">—</div><div class="adr-l">Remaining ADR</div></div>
+      </div>
+      <div id="adrMsg"></div>
+    </div>`:'' ;
+
+  rp.innerHTML=`<div class="rc">
+    <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:6px">Today's conditions</div>
+    <div class="sel-tags">${tags}</div>
+    ${r.hardAvoid?`<div class="hard-avoid"><span class="ha-ico">⛔</span><span>${r.reason}</span></div>`:''}
+    <div class="verdict-row">
+      <div class="verdict ${vClass}">
+        <div class="v-ico">${vIco}</div>
+        <div>
+          <div class="v-lbl">Statistical Bias</div>
+          <div class="v-title" style="color:${vColor}">${biasLabel}</div>
+          <div class="v-sub">${confNote}</div>
         </div>
       </div>
-      <div class="grade-badge ${gradeClass}">
-        <div class="gb-grade">${res.grade}</div>
-        <div class="gb-label">Grade</div>
-      </div>
+      <div class="grade-box ${gradeClass}"><div class="gb-g">${r.grade}</div><div class="gb-l">Grade</div></div>
     </div>
-    ${res.hardAvoid?`<div class="verdict v-avoid" style="margin-bottom:16px"><div class="v-icon">⛔</div><div class="v-body"><div class="v-lbl">Hard Avoid</div><div class="v-title" style="color:var(--avoid)">${res.reason}</div></div></div>`:''}
+    ${conflictHTML}
     ${scoreHTML}
-    <div class="cond-list">
-      <div class="cond-label">Condition Breakdown</div>
-      <div class="cond-items">${condHTML}</div>
-    </div>`;
-
-  // Note
-  if (a.note) {
-    card.innerHTML += `<div style="font-size:.72rem;color:var(--muted);padding:10px 12px;background:var(--card);border-radius:8px;border-left:3px solid var(--ac);margin-top:4px">${a.note}</div>`;
-  }
-
-  // ADR widget (XAUUSD only)
-  if (a.showADR) {
-    card.innerHTML += `
-      <div class="adr-widget" id="adrWidget">
-        <div class="adr-title">⚡ ADR Filter — Daily Range Check</div>
-        <div class="adr-inputs">
-          <div class="adr-field"><label>ADR ($)</label><input type="number" id="adrVal" placeholder="100" oninput="calcADR()"></div>
-          <div class="adr-field"><label>Today's High</label><input type="number" id="todayHigh" placeholder="3400" oninput="calcADR()"></div>
-          <div class="adr-field"><label>Today's Low</label><input type="number" id="todayLow" placeholder="3350" oninput="calcADR()"></div>
-        </div>
-        <div class="adr-result" id="adrResult" style="display:none">
-          <div class="adr-stat"><div class="av" id="adrCur">—</div><div class="al">Current Range</div></div>
-          <div class="adr-stat"><div class="av" id="adrRem">—</div><div class="al">Remaining ADR</div></div>
-        </div>
-        <div id="adrVerdict" style="margin-top:10px;font-size:.75rem"></div>
-      </div>`;
-  }
-
-  // Reset
-  card.innerHTML += `<button class="reset-btn" onclick="resetAsset()">↺ Reset ${ASSETS[activeAsset].name}</button>`;
-
-  rp.appendChild(card);
+    <div class="cond-sec">
+      <div class="sec-lbl">Condition breakdown</div>
+      <div class="cond-list">${condHTML}</div>
+    </div>
+    ${adrHTML}
+    <button class="reset-btn" onclick="resetAsset()">↺ Reset ${a.name}</button>
+  </div>`;
 }
 
-function calcADR() {
-  const adr = parseFloat(document.getElementById('adrVal')?.value)||0;
-  const high = parseFloat(document.getElementById('todayHigh')?.value)||0;
-  const low  = parseFloat(document.getElementById('todayLow')?.value)||0;
-  const res = document.getElementById('adrResult');
-  const verd = document.getElementById('adrVerdict');
-  if (!adr||!high||!low||high<=low) { res.style.display='none'; verd.innerHTML=''; return; }
-  const cur = high-low, rem = Math.max(0, adr-cur);
-  document.getElementById('adrCur').textContent = '$'+cur.toFixed(0);
-  document.getElementById('adrRem').textContent = '$'+rem.toFixed(0);
-  res.style.display='grid';
-  const pct = Math.round((rem/adr)*100);
-  document.getElementById('adrCur').style.color = cur>adr*0.8?'var(--bear)':cur>adr*0.5?'var(--chop)':'var(--bull)';
-  document.getElementById('adrRem').style.color = rem>40?'var(--bull)':rem>20?'var(--chop)':'var(--bear)';
-  let msg, color;
-  if (rem>40)      { msg=`✓ $${rem.toFixed(0)} remaining — full target viable`; color='var(--bull)'; }
-  else if (rem>20) { msg=`⚠ $${rem.toFixed(0)} remaining — reduce target`; color='var(--chop)'; }
-  else if (rem>10) { msg=`⚠ $${rem.toFixed(0)} remaining — be careful, range maturing`; color='var(--avoid)'; }
-  else             { msg=`✗ $${rem.toFixed(0)} remaining — avoid chasing, range consumed`; color='var(--bear)'; }
-  verd.innerHTML = `<span style="color:${color};font-weight:600">${msg}</span>`;
+function calcADR(){
+  const adr=parseFloat(document.getElementById('aIn')?.value)||0;
+  const hi=parseFloat(document.getElementById('aHi')?.value)||0;
+  const lo=parseFloat(document.getElementById('aLo')?.value)||0;
+  if(!adr||!hi||!lo||hi<=lo){
+    document.getElementById('adrOut').style.display='none';
+    document.getElementById('adrMsg').innerHTML='';
+    return;
+  }
+  const cur=hi-lo, rem=Math.max(0,adr-cur);
+  document.getElementById('adrOut').style.display='grid';
+  const cv=document.getElementById('adrCur'), rv=document.getElementById('adrRem');
+  cv.textContent='$'+cur.toFixed(0);
+  rv.textContent='$'+rem.toFixed(0);
+  cv.style.color=cur>adr*.8?'var(--bear)':cur>adr*.5?'var(--chop)':'var(--bull)';
+  rv.style.color=rem>40?'var(--bull)':rem>20?'var(--chop)':'var(--bear)';
+  let msg,clr;
+  if(rem>40)      {msg=`✓ $${rem.toFixed(0)} remaining — full target viable`;clr='var(--bull)';}
+  else if(rem>20) {msg=`⚠ $${rem.toFixed(0)} remaining — consider reduced target`;clr='var(--chop)';}
+  else if(rem>10) {msg=`⚠ $${rem.toFixed(0)} remaining — range maturing, be cautious`;clr='var(--avoid)';}
+  else            {msg=`✗ $${rem.toFixed(0)} remaining — avoid chasing, range consumed`;clr='var(--bear)';}
+  document.getElementById('adrMsg').innerHTML=`<div class="adr-msg" style="color:${clr};background:${clr.replace(')',',0.08)').replace('var(','rgba(')}">${msg}</div>`;
 }
 
-function resetAsset() {
-  selections[activeAsset] = {};
+function resetAsset(){
+  sel[active]={};
   renderParams();
   renderResults();
 }
 
-// ══════════════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════════════
-(function init() {
-  // Date line
-  const now = new Date();
-  const d = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()];
-  const m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()];
-  document.getElementById('todayLine').innerHTML =
-    `<span>${d} ${now.getDate()} ${m} ${now.getFullYear()}</span> · London open: 08:00 UTC · NY open: 13:30 UTC`;
-
-  // Set initial asset accent
-  document.documentElement.style.setProperty('--ac', ASSETS[activeAsset].color);
-  document.getElementById('headerTitle').textContent = ASSETS[activeAsset].name + ' — Morning Bias';
-
+// ═══════════════ INIT ═══════════════
+(function(){
+  const now=new Date();
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('todayLine').innerHTML=
+    `<b>${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}</b> &nbsp;·&nbsp; London open: 08:00 UTC &nbsp;·&nbsp; NY open: 13:30 UTC`;
+  document.documentElement.style.setProperty('--ac', ASSETS[active].color);
+  document.getElementById('hdrTitle').textContent = ASSETS[active].name+' — Morning Bias';
   buildTabs();
   renderParams();
   renderResults();
